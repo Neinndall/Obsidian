@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 namespace Obsidian.Data;
 
@@ -13,8 +13,6 @@ public class Config {
     }
     private DateTime _gameHashesLastUpdate;
 
-    public long GameHashesFileSize { get; set; } // Nueva propiedad
-
     public DateTime LcuHashesLastUpdate {
         get => this._lcuHashesLastUpdate;
         set {
@@ -23,8 +21,6 @@ public class Config {
         }
     }
     private DateTime _lcuHashesLastUpdate;
-
-    public long LcuHashesFileSize { get; set; } // Nueva propiedad
     #endregion
 
     #region Bin Hashtable Checksums
@@ -37,8 +33,6 @@ public class Config {
     }
     private DateTime _binFieldsHashesLastUpdate;
 
-    public long BinFieldsFileSize { get; set; } // Nueva propiedad
-
     public DateTime BinTypesHashesLastUpdate {
         get => this._binTypesHashesLastUpdate;
         set {
@@ -47,8 +41,6 @@ public class Config {
         }
     }
     private DateTime _binTypesHashesLastUpdate;
-
-    public long BinTypesFileSize { get; set; } // Nueva propiedad
 
     public DateTime BinHashesHashesLastUpdate {
         get => this._binHashesHashesLastUpdate;
@@ -59,8 +51,6 @@ public class Config {
     }
     private DateTime _binHashesHashesLastUpdate;
 
-    public long BinHashesFileSize { get; set; } // Nueva propiedad
-
     public DateTime BinEntriesHashesLastUpdate {
         get => this._binEntriesHashesLastUpdate;
         set {
@@ -69,8 +59,6 @@ public class Config {
         }
     }
     private DateTime _binEntriesHashesLastUpdate;
-
-    public long BinEntriesFileSize { get; set; } // Nueva propiedad
     #endregion
 
     public bool DoNotRequireGameDirectory {
