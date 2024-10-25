@@ -7,6 +7,10 @@ using Obsidian.Data.Wad;
 using Obsidian.Pages;
 using Obsidian.Utils;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Obsidian.Shared;
 
@@ -63,7 +67,6 @@ public partial class TreeWadItem {
 
     private void OnCheckedChanged(bool value) {
         this.IsChecked = value;
-
         this.Explorer.RefreshState();
     }
 
@@ -108,7 +111,7 @@ public partial class TreeWadItem {
         int targetIndex = items.IndexOf(this.Item);
         int currentIndex = items.IndexOf(selectedItem);
 
-        if (currentIndex is -1)
+        if (currentIndex == -1)
             return;
 
         // Get range of items to select
@@ -124,7 +127,7 @@ public partial class TreeWadItem {
             .Take(endIndex - startIndex + 1);
         foreach (WadTreeItemModel itemToSelect in itemsToSelect) {
             itemToSelect.IsChecked = !itemToSelect.IsChecked;
-            if (itemToSelect.IsExpanded is false)
+            if (!itemToSelect.IsExpanded)
                 itemToSelect.CheckItemTree(itemToSelect.IsChecked);
         }
 
@@ -135,17 +138,22 @@ public partial class TreeWadItem {
         if (this.Item is not WadTreeFileModel fileItem)
             return;
 
+        // Diálogo para seleccionar el archivo de guardado
         CommonSaveFileDialog dialog = new("Save") { DefaultFileName = fileItem.Name };
-        if (dialog.ShowDialog(this.Explorer.Window.WindowHandle) is not CommonFileDialogResult.Ok)
+        if (dialog.ShowDialog(this.Explorer.Window.WindowHandle) != CommonFileDialogResult.Ok)
             return;
 
+        // Log para la información de guardado
         Log.Information($"Saving {fileItem.Path} to {dialog.FileName}");
         this.Explorer.ToggleExporting(true);
         try {
-            WadUtils.SaveChunk(fileItem.Wad, fileItem.Chunk, dialog.FileName);
+            // Aquí necesitas obtener el directorio de guardado
+            string saveDirectory = System.IO.Path.GetDirectoryName(dialog.FileName);
+            WadUtils.SaveChunk(fileItem.Wad, fileItem.Chunk, dialog.FileName, saveDirectory); // Agregar saveDirectory aquí
             this.Explorer.Snackbar.Add($"Saved {fileItem.Name}", Severity.Success);
         } catch (Exception exception) {
-            SnackbarUtils.ShowHardError(this.Explorer.Snackbar, exception);
+            // Muestra los errores en el Snackbar
+            this.Explorer.Snackbar.Add($"Error: {exception.Message}", Severity.Error);
         } finally {
             this.Explorer.ToggleExporting(false);
         }

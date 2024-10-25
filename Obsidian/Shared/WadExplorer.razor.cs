@@ -167,9 +167,9 @@ public partial class WadExplorer : IDisposable {
         Log.Information("Loading external hashtables: {Hashtables}", dialog.FileNames);
         try {
             // Load hashtables
-            await InvokeAsync(() => {
+            await InvokeAsync(async () => { // Cambiado a async
                 foreach (string hashtableFile in dialog.FileNames) {
-                    this.Hashtable.LoadHashtable(hashtableFile);
+                    await this.Hashtable.LoadHashtable(hashtableFile); // Añadido await aquí
                 }
             });
 
