@@ -45,51 +45,6 @@ public class HashtableService {
         public long Size { get; set; }
     }
 
-    public bool HasNewHashtableUpdates(string hashFilesHtml, string url) {
-        // Lógica para obtener las últimas fechas de actualización de los hashes
-        DateTime lastGameUpdate = this.Config.GameHashesLastUpdate;
-        DateTime lastLcuUpdate = this.Config.LcuHashesLastUpdate;
-        DateTime lastBinFieldsUpdate = this.Config.BinFieldsHashesLastUpdate;
-        DateTime lastBinClassesUpdate = this.Config.BinTypesHashesLastUpdate;
-        DateTime lastBinHashesUpdate = this.Config.BinHashesHashesLastUpdate;
-        DateTime lastBinObjectsUpdate = this.Config.BinEntriesHashesLastUpdate;
-
-        // Obtener la fecha de modificación del servidor
-        DateTime serverTime = ParseServerUpdateTime(hashFilesHtml, Path.GetFileName(url));
-
-        // Inicializa una variable para saber si hay actualizaciones
-        bool hasUpdates = false;
-
-        // Verifica si la fecha del servidor es más reciente que las fechas almacenadas
-        if (serverTime > lastGameUpdate) {
-            hasUpdates = true;
-            Log.Information("¡HAY ACTUALIZACION PARA GAME!");
-        }
-        if (serverTime > lastLcuUpdate) {
-            hasUpdates = true;
-            Log.Information("¡HAY ACTUALIZACION PARA LCU!");
-        }
-        if (serverTime > lastBinFieldsUpdate) {
-            hasUpdates = true;
-            Log.Information("¡HAY ACTUALIZACION PARA BIN FIELDS!");
-        }
-        if (serverTime > lastBinClassesUpdate) {
-            hasUpdates = true;
-            Log.Information("¡HAY ACTUALIZACION PARA BIN CLASSES!");
-        }
-        if (serverTime > lastBinHashesUpdate) {
-            hasUpdates = true;
-            Log.Information("¡HAY ACTUALIZACION PARA BIN HASHES!");
-        }
-        if (serverTime > lastBinObjectsUpdate) {
-            hasUpdates = true;
-            Log.Information("¡HAY ACTUALIZACION PARA BIN OBJECTS!");
-        }
-
-        // Devolver verdadero si hay actualizaciones nuevas para al menos uno de los hashtables
-        return hasUpdates;
-    }
-
     // Constructor
     public HashtableService(Config config) {
         this.Config = config;
