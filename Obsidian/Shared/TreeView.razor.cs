@@ -4,7 +4,6 @@ using MudBlazor.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Obsidian.Shared;
@@ -19,64 +18,54 @@ public partial class TreeView<TItem>
             .AddStyle(this.Style)
             .Build();
 
-    /// <summary>
-    /// Colección de ítems planos que se mostrarán en el árbol.
-    /// </summary>
     [Parameter]
     public ICollection<TItem> ItemsFlat { get; set; } = new List<TItem>();
 
-    /// <summary>
-    /// Plantilla de renderizado para cada ítem del árbol.
-    /// </summary>
     [Parameter]
     public RenderFragment<TItem> ItemTemplate { get; set; }
 
-    /// <summary>
-    /// Tamaño de cada ítem en el árbol.
-    /// </summary>
     [Parameter]
     public float ItemSize { get; set; } = 50f;
 
-    /// <summary>
-    /// Número de ítems visibles alrededor del área de vista.
-    /// </summary>
     [Parameter]
     public int OverscanCount { get; set; } = 5;
 
-    /// <summary>
-    /// Altura del árbol.
-    /// </summary>
     [Parameter]
     public string Height { get; set; }
 
-    /// <summary>
-    /// Altura máxima del árbol.
-    /// </summary>
     [Parameter]
     public string MaxHeight { get; set; }
 
-    /// <summary>
-    /// Estilos personalizados para el árbol.
-    /// </summary>
     [Parameter]
     public string Style { get; set; }
 
-    /// <summary>
-    /// Evento llamado cuando se cambia el ítem seleccionado.
-    /// </summary>
     [Parameter]
-    public EventCallback<TItem> OnSelectedItemChanged { get; set; }
+    public EventCallback<HashSet<TItem>> OnSelectedItemsChanged { get; set; }
+
+    private string _searchTerm = string.Empty;
+    private HashSet<TItem> _selectedItems = new HashSet<TItem>();
+
+    private IEnumerable<TItem> FilteredItems => 
+        ItemsFlat.Where(item => 
+            item.ToString().Contains(_searchTerm, StringComparison.OrdinalIgnoreCase));
 
     private async Task OnItemClick(MouseEventArgs e, TItem item) 
     {
-        try
+        if (_selectedItems.Contains(item))
         {
-            await this.OnSelectedItemChanged.InvokeAsync(item);
+            _selectedItems.Remove(item);
         }
-        catch (Exception ex)
+        else
         {
-            // Manejar el error aquí si es necesario
-            Console.WriteLine($"Error al manejar el click del ítem: {ex.Message}");
+            _selectedItems.Add(item);
         }
+
+        await OnSelectedItemsChanged.InvokeAsync(_selectedItems);
+    }
+
+    private void UpdateSearchTerm(string searchTerm)
+    {
+        _searchTerm = searchTerm;
+        // Actualización del árbol si es necesario.
     }
 }

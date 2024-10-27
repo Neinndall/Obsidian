@@ -6,10 +6,9 @@
 @using Serilog;
 
 <div class="tree-view-item-wrapper cursor-pointer @(Item.IsSelected ? "tree-view-item-wrapper-selected" : "")"
-     style="height: 36px"
+     style="height: 30px;"
      @ondblclick="OnRowDoubleClick" @ondblclick:stopPropagation @ondblclick:preventDefault>
-    <MudMenu Dense PositionAtCurser
-             FullWidth="false" ActivationEvent="MouseEvent.RightClick" Size="Size.Small">
+    <MudMenu Dense PositionAtCurser FullWidth="false" ActivationEvent="MouseEvent.RightClick" Size="Size.Small">
         <ChildContent>
             <MudMenuItem Icon="@Icons.Material.TwoTone.CopyAll" IconSize="Size.Small" IconColor="Color.Primary"
                          OnClick="@CopyPathToClipboard">
@@ -20,14 +19,14 @@
                 <MudText Typo="Typo.subtitle2">Copy Name</MudText>
             </MudMenuItem>
             <MudDivider />
-            @if (this.Item.Type is WadTreeItemType.File)
+            @if (Item.Type is WadTreeItemType.File)
             {
                 <MudMenuItem Icon="@CustomIcons.Material.ContentSave" IconSize="Size.Small" IconColor="Color.Primary"
                          OnClick="@Save">
                     <MudText Typo="Typo.subtitle2">Save</MudText>
                 </MudMenuItem>
             }
-            @if (this.Item.IsWadArchive)
+            @if (Item.IsWadArchive)
             {
                 <MudMenuItem Icon="@Icons.Material.TwoTone.Delete" IconSize="Size.Small" IconColor="Color.Primary"
                          OnClick="@Delete">
@@ -63,12 +62,11 @@
             </MudMenuItem>
         </ChildContent>
         <ActivatorContent>
-            <table class="tree-view-item" style="height: 36px;">
-                <tr @key="Item.Id"
-                    @onclick="OnRowClick">
+            <table class="tree-view-item" style="height: 30px;">
+                <tr @key="Item.Id" @onclick="OnRowClick">
                     @for (int i = 0; i < Item.Depth; i++)
                     {
-                        <td class="tree-view-item-childrenLine" />
+                        <td class="tree-view-item-childrenLine"></td>
                     }
                     <td style="vertical-align: middle; width: 20px">
                         @if (Item.Type is WadTreeItemType.Directory)
@@ -85,9 +83,18 @@
                                      Checked="@IsChecked"
                                      CheckedChanged="@OnCheckedChanged"
                                      Color="Color.Primary" Size="Size.Small" />
-                    </td>
-                    <td style="text-align: center; width: 24px">
-                        <MudIcon Class="d-block" Icon="@Item.Icon" Size="Size.Small" Color="@(Item.IsHighlighted ? Color.Primary : Color.Inherit)" />
+                    </td> <!-- Cierra aquí la etiqueta <td> del MudCheckBox -->
+                    <td style="width: 24px; text-align: left; vertical-align: middle;">
+                        <div style="display: flex; align-items: center; justify-content: flex-start; height: 100%;">
+                            @if (Item.Type is WadTreeItemType.File)
+                            {
+                                @GetCustomIcon(Item) <!-- Usar GetCustomIcon para archivos -->
+                            }
+                            else
+                            {
+                                <MudIcon Icon="@Item.GetIcon()" Size="Size.Small" Color="@((Item.IsHighlighted) ? Color.Primary : Color.Inherit)" />
+                            }
+                        </div>
                     </td>
                     <td class="tree-view-item-name">
                         <MudHighlighter Class="mud-primary-text" Style="background-color: transparent; font-weight: bold;"
@@ -98,3 +105,21 @@
         </ActivatorContent>
     </MudMenu>
 </div>
+
+@code {
+    private RenderFragment GetCustomIcon(WadTreeItemModel item) => builder =>
+    {
+        var icon = item.Type switch
+        {
+            WadTreeItemType.File when item.Name.EndsWith(".json") => Icons.Material.Outlined.TextSnippet, // Icono específico para JSON
+            _ => Icons.Material.Outlined.InsertDriveFile // Icono por defecto para otros archivos
+        };
+
+        builder.OpenComponent<MudIcon>(0);
+        builder.AddAttribute(1, "Class", "d-block");
+        builder.AddAttribute(2, "Icon", icon);
+        builder.AddAttribute(3, "Size", Size.Small);
+        builder.AddAttribute(4, "Color", item.IsHighlighted ? Color.Primary : Color.Inherit);
+        builder.CloseComponent();
+    };
+}

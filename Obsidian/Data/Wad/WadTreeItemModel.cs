@@ -73,28 +73,28 @@ public class WadTreeItemModel
     public string GetIcon() {
         string extension = PathIO.GetExtension(this.Name);
         if (this.IsWadArchive)
-            return Icons.Material.TwoTone.Archive;
+            return Icons.Material.Outlined.Archive;
 
         if (this.Type is WadTreeItemType.Directory)
-            return Icons.Material.TwoTone.Folder;
+            return Icons.Material.Outlined.Folder;
 
         LeagueFileType fileType = LeagueFile.GetFileType(extension);
         return fileType switch {
-            LeagueFileType.Animation => Icons.Material.TwoTone.Animation,
-            LeagueFileType.Jpeg => Icons.Material.TwoTone.Image,
+            LeagueFileType.Animation => Icons.Material.Outlined.Animation,
+            LeagueFileType.Jpeg => Icons.Material.Outlined.Image,
             LeagueFileType.MapGeometry => CustomIcons.Material.ImageFilterHdr,
-            LeagueFileType.Png => Icons.Material.TwoTone.Image,
+            LeagueFileType.Png => Icons.Material.Outlined.Image,
             LeagueFileType.PropertyBin => CustomIcons.Material.CodeBracesBox,
             LeagueFileType.PropertyBinOverride => CustomIcons.Material.CodeBracesBox,
-            LeagueFileType.RiotStringTable => Icons.Material.TwoTone.Translate,
+            LeagueFileType.RiotStringTable => Icons.Material.Outlined.Translate,
             LeagueFileType.SimpleSkin => CustomIcons.Material.Cube,
             LeagueFileType.Skeleton => CustomIcons.Material.Bone,
             LeagueFileType.StaticMeshAscii => CustomIcons.Material.Cube,
             LeagueFileType.StaticMeshBinary => CustomIcons.Material.Cube,
-            LeagueFileType.Texture => Icons.Material.TwoTone.Image,
-            LeagueFileType.TextureDds => Icons.Material.TwoTone.Image,
+            LeagueFileType.Texture => Icons.Material.Outlined.Image,
+            LeagueFileType.TextureDds => Icons.Material.Outlined.Image,
             LeagueFileType.WorldGeometry => CustomIcons.Material.ImageFilterHdr,
-            LeagueFileType.WadArchive => Icons.Material.TwoTone.Archive,
+            LeagueFileType.WadArchive => Icons.Material.Outlined.Archive,
             LeagueFileType.WwiseBank => CustomIcons.Material.VolumeHigh,
             LeagueFileType.WwisePackage => CustomIcons.Material.AccountVoice,
             _ => Icons.Custom.FileFormats.FileDocument,

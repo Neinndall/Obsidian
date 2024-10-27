@@ -3,20 +3,33 @@
 @inherits ComponentBase
 
 <style>
+    
     .tree-view-item-wrapper {
         width: 100%;
-        padding-left: 2rem;
+        padding: 0rem; /* Menos padding a la derecha para mover todo a la izquierda */
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        transition: background-color 0.2s ease, transform 0.1s ease;
+        border-radius: 4px;
+        background-color: transparent; /* Fondo transparente por defecto */
     }
+        .tree-view-item-wrapper:hover:not(.tree-view-item-wrapper-selected) {
+            background-color: rgba(255, 255, 255, 0.1); /* Fondo semitransparente más blanco al pasar el ratón */
+            opacity: 0.9; /* Opacidad al pasar el ratón */
+            }
 
-    .tree-view-item-wrapper:hover:not(.tree-view-item-wrapper-selected) {
-        background-color: #0000000a;
-    }
-
+        .tree-view-item-wrapper:hover {
+            background-color: #0000000a !important; /* Fondo semi-transparente al hacer hover */
+            transform: translateX(2px); /* Leve desplazamiento al hacer hover */
+        }
+    
     .tree-view-item-wrapper-selected {
-        background-color: rgba(0, 0, 0, 0.15);
+        background-color: rgba(0, 0, 0, 0.15); /* Fondo seleccionado */
     }
 
     .tree-view-item {
+        margin-bottom: 0; /* Eliminar espacio entre filas */
         width: 100%;
         table-layout: fixed;
     }
@@ -25,8 +38,10 @@
         user-select: none;
         white-space: nowrap;
         width: 100%;
+        padding-left: 0px; /* Espacio a la izquierda del nombre del elemento */
         vertical-align: middle;
         overflow-x: hidden; /* Cambié clip a hidden para evitar desbordamiento horizontal */
+        color: #ffffff; /* Texto en blanco */
     }
 </style>
 

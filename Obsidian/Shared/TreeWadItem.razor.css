@@ -3,9 +3,8 @@
 }
 
     .tree-view-item-childrenLine::after {
-        content: '';
         height: 100%;
         display: block;
-        margin-left: 11px;
+        margin-left: 10px;
         border-left: 1px solid #ffffff1e;
     }

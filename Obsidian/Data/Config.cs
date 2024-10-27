@@ -61,6 +61,61 @@ public class Config {
     private DateTime _binEntriesHashesLastUpdate;
     #endregion
 
+    // Solo se guardan los tamaños de los archivos del servidor
+    public long GameHashesFileSize {
+        get => this._gameHashesFileSize;
+        set {
+            this._gameHashesFileSize = value;
+            Save();
+        }
+    }
+    private long _gameHashesFileSize;
+
+    public long LcuHashesFileSize {
+        get => this._lcuHashesFileSize;
+        set {
+            this._lcuHashesFileSize = value;
+            Save();
+        }
+    }
+    private long _lcuHashesFileSize;
+
+    public long BinFieldsFileSize {
+        get => this._binFieldsFileSize;
+        set {
+            this._binFieldsFileSize = value;
+            Save();
+        }
+    }
+    private long _binFieldsFileSize;
+
+    public long BinClassesFileSize {
+        get => this._binClassesFileSize;
+        set {
+            this._binClassesFileSize = value;
+            Save();
+        }
+    }
+    private long _binClassesFileSize;
+
+    public long BinHashesFileSize {
+        get => this._binHashesFileSize;
+        set {
+            this._binHashesFileSize = value;
+            Save();
+        }
+    }
+    private long _binHashesFileSize;
+
+    public long BinObjectsFileSize {
+        get => this._binObjectsFileSize;
+        set {
+            this._binObjectsFileSize = value;
+            Save();
+        }
+    }
+    private long _binObjectsFileSize;
+
     public bool DoNotRequireGameDirectory {
         get => this._doNotRequireGameDirectory;
         set {
@@ -122,23 +177,21 @@ public class Config {
             Save();
         }
     }
-    public bool _shouldPreviewSelectedItems = true;
+    private bool _shouldPreviewSelectedItems = true;
 
     private const string CONFIG_FILE = "config.json";
 
     public Config() { }
 
     public static Config Load() {
-        if (File.Exists(CONFIG_FILE) is false)
+        if (!File.Exists(CONFIG_FILE))
             return new();
 
         using FileStream configStream = File.OpenRead(CONFIG_FILE);
-
         return JsonSerializer.Deserialize<Config>(configStream);
     }
 
     public void Save() {
-        // this is an ugly as fuck hack but it works so idc
         try {
             File.WriteAllText(
                 CONFIG_FILE,

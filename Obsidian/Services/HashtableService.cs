@@ -40,6 +40,56 @@ public class HashtableService {
     private const string BIN_HASHES_PATH = $"{HASHES_DIRECTORY}/hashes.binhashes.txt";
     private const string BIN_OBJECTS_PATH = $"{HASHES_DIRECTORY}/hashes.binentries.txt";
 
+    // Clase para el Tamaño del Archivo
+    public class FileSizeWrapper {
+        public long Size { get; set; }
+    }
+
+    public bool HasNewHashtableUpdates(string hashFilesHtml, string url) {
+        // Lógica para obtener las últimas fechas de actualización de los hashes
+        DateTime lastGameUpdate = this.Config.GameHashesLastUpdate;
+        DateTime lastLcuUpdate = this.Config.LcuHashesLastUpdate;
+        DateTime lastBinFieldsUpdate = this.Config.BinFieldsHashesLastUpdate;
+        DateTime lastBinClassesUpdate = this.Config.BinTypesHashesLastUpdate;
+        DateTime lastBinHashesUpdate = this.Config.BinHashesHashesLastUpdate;
+        DateTime lastBinObjectsUpdate = this.Config.BinEntriesHashesLastUpdate;
+
+        // Obtener la fecha de modificación del servidor
+        DateTime serverTime = ParseServerUpdateTime(hashFilesHtml, Path.GetFileName(url));
+
+        // Inicializa una variable para saber si hay actualizaciones
+        bool hasUpdates = false;
+
+        // Verifica si la fecha del servidor es más reciente que las fechas almacenadas
+        if (serverTime > lastGameUpdate) {
+            hasUpdates = true;
+            Log.Information("¡HAY ACTUALIZACION PARA GAME!");
+        }
+        if (serverTime > lastLcuUpdate) {
+            hasUpdates = true;
+            Log.Information("¡HAY ACTUALIZACION PARA LCU!");
+        }
+        if (serverTime > lastBinFieldsUpdate) {
+            hasUpdates = true;
+            Log.Information("¡HAY ACTUALIZACION PARA BIN FIELDS!");
+        }
+        if (serverTime > lastBinClassesUpdate) {
+            hasUpdates = true;
+            Log.Information("¡HAY ACTUALIZACION PARA BIN CLASSES!");
+        }
+        if (serverTime > lastBinHashesUpdate) {
+            hasUpdates = true;
+            Log.Information("¡HAY ACTUALIZACION PARA BIN HASHES!");
+        }
+        if (serverTime > lastBinObjectsUpdate) {
+            hasUpdates = true;
+            Log.Information("¡HAY ACTUALIZACION PARA BIN OBJECTS!");
+        }
+
+        // Devolver verdadero si hay actualizaciones nuevas para al menos uno de los hashtables
+        return hasUpdates;
+    }
+
     // Constructor
     public HashtableService(Config config) {
         this.Config = config;
@@ -90,59 +140,85 @@ public class HashtableService {
 
         // Solo sincroniza el archivo que falta
         if (this.Config.SyncHashtables) {
+            var gameFileSizeWrapper = new FileSizeWrapper();
+            var lcuFileSizeWrapper = new FileSizeWrapper();
+            
+            // Sincroniza Game Hashes
             this.Config.GameHashesLastUpdate = await SyncHashtable(
                 client,
                 hashFilesHtml,
                 HASHES_BASE_URL + GAME_HASHES_FILENAME,
                 GAME_HASHES_PATH,
-                this.Config.GameHashesLastUpdate
+                this.Config.GameHashesLastUpdate,
+                gameFileSizeWrapper // Use the wrapper instead of ref
             );
+            this.Config.GameHashesFileSize = gameFileSizeWrapper.Size; // Guardar tamaño de archivo
+
+            // Sincroniza LCU Hashes
             this.Config.LcuHashesLastUpdate = await SyncHashtable(
                 client,
                 hashFilesHtml,
                 HASHES_BASE_URL + LCU_HASHES_FILENAME,
                 LCU_HASHES_PATH,
-                this.Config.LcuHashesLastUpdate
+                this.Config.LcuHashesLastUpdate,
+                lcuFileSizeWrapper // Use the wrapper instead of ref
             );
+            this.Config.LcuHashesFileSize = lcuFileSizeWrapper.Size; // Guardar tamaño de archivo
         }
     }
 
     private async Task SyncBinHashtables(HttpClient client, string hashFilesHtml) {
         Log.Information("Syncing BIN hashtables");
 
-        // Solo sincroniza el archivo que falta
         if (this.Config.SyncHashtables) {
+            var binFieldsFileSizeWrapper = new FileSizeWrapper();
+            var binTypesFileSizeWrapper = new FileSizeWrapper();
+            var binHashesFileSizeWrapper = new FileSizeWrapper();
+            var binEntriesFileSizeWrapper = new FileSizeWrapper();
+            
+            // Sincroniza Bin Fields
             this.Config.BinFieldsHashesLastUpdate = await SyncHashtable(
                 client,
                 hashFilesHtml,
                 HASHES_BASE_URL + BIN_FIELDS_FILENAME,
                 BIN_FIELDS_PATH,
-                this.Config.BinFieldsHashesLastUpdate
+                this.Config.BinFieldsHashesLastUpdate,
+                binFieldsFileSizeWrapper // Use the wrapper instead of ref
             );
-            
+            this.Config.BinFieldsFileSize = binFieldsFileSizeWrapper.Size; // Guardar tamaño de archivo
+
+            // Sincroniza Bin Classes
             this.Config.BinTypesHashesLastUpdate = await SyncHashtable(
                 client,
                 hashFilesHtml,
                 HASHES_BASE_URL + BIN_CLASSES_FILENAME,
                 BIN_CLASSES_PATH,
-                this.Config.BinTypesHashesLastUpdate
+                this.Config.BinTypesHashesLastUpdate,
+                binTypesFileSizeWrapper // Use the wrapper instead of ref
             );
+            this.Config.BinClassesFileSize = binTypesFileSizeWrapper.Size; // Guardar tamaño de archivo
 
+            // Sincroniza Bin Hashes
             this.Config.BinHashesHashesLastUpdate = await SyncHashtable(
                 client,
                 hashFilesHtml,
                 HASHES_BASE_URL + BIN_HASHES_FILENAME,
                 BIN_HASHES_PATH,
-                this.Config.BinHashesHashesLastUpdate
+                this.Config.BinHashesHashesLastUpdate,
+                binHashesFileSizeWrapper // Use the wrapper instead of ref
             );
+            this.Config.BinHashesFileSize = binHashesFileSizeWrapper.Size; // Guardar tamaño de archivo
 
+            // Sincroniza Bin Objects
             this.Config.BinEntriesHashesLastUpdate = await SyncHashtable(
                 client,
                 hashFilesHtml,
                 HASHES_BASE_URL + BIN_OBJECTS_FILENAME,
                 BIN_OBJECTS_PATH,
-                this.Config.BinEntriesHashesLastUpdate
+                this.Config.BinEntriesHashesLastUpdate,
+                binEntriesFileSizeWrapper // Use the wrapper instead of ref
             );
+            this.Config.BinObjectsFileSize = binEntriesFileSizeWrapper.Size; // Guardar tamaño de archivo
         }
     }
 
@@ -151,45 +227,54 @@ public class HashtableService {
         string hashFilesHtml,
         string url,
         string path,
-        DateTime lastUpdateTime
+        DateTime lastUpdateTime,
+        FileSizeWrapper fileSize // Cambiado a usar FileSizeWrapper
     ) {
         // Obtener la fecha de modificación del servidor
         DateTime serverTime = ParseServerUpdateTime(hashFilesHtml, Path.GetFileName(url));
-        
+
         // Verificar si el archivo existe
         if (!File.Exists(path)) {
             Log.Information($"File {path} does not exist. Downloading from {url}.");
             using Stream remoteFileContentStream = await client.GetStreamAsync(url);
             using FileStream localFileStream = File.Create(path);
             await remoteFileContentStream.CopyToAsync(localFileStream);
+            fileSize.Size = await GetServerFileSize(client, url); // Guardar el tamaño del archivo del servidor
             return serverTime; // Establecer la fecha del servidor como última actualización
+        }
+
+        // Si no hay cambios en el servidor, retorna
+        if (serverTime == lastUpdateTime) {
+            Log.Information($"No updates on the server. Last update: {lastUpdateTime}. Skipping GET for {url}.");
+            return lastUpdateTime; // Retorna la última actualización
         }
 
         // Obtener el tamaño del archivo local
         long localFileSize = new FileInfo(path).Length;
-
-        // Obtener el tamaño del archivo del servidor
-        long serverFileSize = await GetServerFileSize(client, url);
         
-        // Log para mostrar los tamaños de los archivos
-        Log.Information($"Local file size of {path}: {localFileSize} bytes");
+        // Ahora, si hay una actualización, verifica el tamaño del archivo en el servidor
+        long serverFileSize = await GetServerFileSize(client, url);
+                
+        // Log para mostrar los tamaños de los archivos Local y Servidor
         Log.Information($"Server file size of {url}: {serverFileSize} bytes");
+        Log.Information($"Local file size of {path}: {localFileSize} bytes");
 
         // Comparar el tamaño de los archivos
         if (localFileSize >= serverFileSize) {
             Log.Information($"{path} is already up to date with the server based on file size.");
-            // No se necesita descargar nada, no se hace nada aquí
         } else {
             // Si el archivo local es más pequeño, descargarlo
             Log.Information($"Local file {path} is smaller than the server version. Downloading hashtable: {path} from {url}");
-
+            
             using Stream fileContentStream = await client.GetStreamAsync(url);
             using FileStream fileStream = File.Create(path);
             await fileContentStream.CopyToAsync(fileStream);
+            fileSize.Size = serverFileSize; // Guardar el tamaño del archivo del servidor
         }
 
         return serverTime; // Después de descargar, actualizamos la fecha
     }
+
 
     private static async Task<long> GetServerFileSize(HttpClient client, string url) {
         try {

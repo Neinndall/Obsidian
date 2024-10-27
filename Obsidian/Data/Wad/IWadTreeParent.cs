@@ -16,7 +16,7 @@ public static class IWadTreeParentExtensions {
         WadChunk chunk
     ) {
         // File belongs to this folder
-        if (pathComponents.Count() is 1) {
+        if (pathComponents.Count() == 1) {
             parent.Items.Add(new WadTreeFileModel(parent, pathComponents.First(), wad, chunk));
             return;
         }
@@ -24,11 +24,10 @@ public static class IWadTreeParentExtensions {
         string folderName = pathComponents.First();
         ulong folderNameHash = XxHash64Ext.Hash(folderName);
 
-        WadTreeItemModel directory = null;
+        WadTreeItemModel directory;
         lock (parent) {
-            directory = parent.Items.FirstOrDefault(item => item.Type is not WadTreeItemType.File && item.NameHash == folderNameHash);
-            if (directory is null) {
-                directory = new(parent, folderName);
+            directory = parent.Items.FirstOrDefault(item => item.Type != WadTreeItemType.File && item.NameHash == folderNameHash) ?? new WadTreeItemModel(parent, folderName);
+            if (!parent.Items.Contains(directory)) {
                 parent.Items.Add(directory);
             }
         }
@@ -37,7 +36,7 @@ public static class IWadTreeParentExtensions {
     }
 
     public static IEnumerable<WadTreeItemModel> TraverseFlattenedItems(this IWadTreeParent parent) {
-        if (parent.Items is null)
+        if (parent?.Items == null)
             yield break;
 
         foreach (var item in parent.Items) {
@@ -48,10 +47,8 @@ public static class IWadTreeParentExtensions {
         }
     }
 
-    public static IEnumerable<WadTreeItemModel> TraverseFlattenedCheckedItems(
-        this IWadTreeParent parent
-    ) {
-        if (parent.Items is null)
+    public static IEnumerable<WadTreeItemModel> TraverseFlattenedCheckedItems(this IWadTreeParent parent) {
+        if (parent?.Items == null)
             yield break;
 
         foreach (var item in parent.Items) {
@@ -63,12 +60,8 @@ public static class IWadTreeParentExtensions {
         }
     }
 
-    public static IEnumerable<WadTreeItemModel> TraverseFlattenedVisibleItems(
-        this IWadTreeParent parent,
-        string filter,
-        bool useRegex = false
-    ) {
-        if (parent.Items is null)
+    public static IEnumerable<WadTreeItemModel> TraverseFlattenedVisibleItems(this IWadTreeParent parent, string filter, bool useRegex = false) {
+        if (parent?.Items == null)
             yield break;
 
         foreach (var item in parent.Items) {
@@ -80,25 +73,22 @@ public static class IWadTreeParentExtensions {
                 }
 
                 // If the current item is a folder we get filtered items and if there are none we skip
-                WadTreeItemModel[] filteredItems = item.TraverseFlattenedVisibleItems(
-                        filter,
-                        useRegex
-                    )
-                    .ToArray();
-                if (filteredItems.Length is 0)
+                var filteredItems = item.TraverseFlattenedVisibleItems(filter, useRegex);
+                if (!filteredItems.Any())
                     continue;
 
                 // Return parent only if its children are included in the filter
                 yield return item;
 
-                if (item.IsExpanded)
+                if (item.IsExpanded) {
                     foreach (WadTreeItemModel itemItem in filteredItems)
                         yield return itemItem;
+                }
             } else {
                 // root items are always visible
                 yield return item;
 
-                if (item.Type is WadTreeItemType.Directory && item.IsExpanded)
+                if (item.Type == WadTreeItemType.Directory && item.IsExpanded)
                     foreach (WadTreeItemModel itemItem in item.TraverseFlattenedVisibleItems(null))
                         yield return itemItem;
             }
@@ -106,13 +96,7 @@ public static class IWadTreeParentExtensions {
     }
 
     public static bool DoesMatchFilter(WadTreeItemModel item, string filter, bool useRegex) =>
-        useRegex switch {
-            true
-                => Regex.IsMatch(
-                    item.Path,
-                    filter,
-                    RegexOptions.IgnoreCase | RegexOptions.CultureInvariant
-                ),
-            false => item.Path.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
-        };
+        useRegex
+            ? Regex.IsMatch(item.Path, filter, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+            : item.Path.Contains(filter, StringComparison.InvariantCultureIgnoreCase);
 }
