@@ -9,6 +9,7 @@ using LeagueToolkit.Utils;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using System.Text.RegularExpressions;
 using MudBlazor;
 using MudExtensions;
 using Obsidian.BabylonJs;
@@ -184,13 +185,36 @@ public partial class WadExplorer : IDisposable {
     #endregion
 
     private void ExtractFiles(IEnumerable<WadTreeFileModel> fileItems, string extractionDirectory) {
-        foreach (WadTreeFileModel fileItem in fileItems)
-            Utils.WadUtils.SaveChunk(
-                fileItem.Wad,
-                fileItem.Chunk,
-                fileItem.Path,
-                extractionDirectory
-            );
+        foreach (WadTreeFileModel fileItem in fileItems) {
+            string finalFileName = fileItem.Path; // Nombre final del archivo
+
+            // Comprueba si el archivo no tiene extensión
+            if (string.IsNullOrEmpty(Path.GetExtension(fileItem.Path))) {
+                // Si el archivo tiene un nombre legible (no es hexadecimal), añade un punto al inicio
+                if (!Regex.IsMatch(Path.GetFileNameWithoutExtension(fileItem.Path), @"^[a-fA-F0-9]+$")) {
+                    finalFileName = Path.Combine(Path.GetDirectoryName(fileItem.Path), 
+                        $".{Path.GetFileName(fileItem.Path)}");
+                }
+            }
+
+            // Ruta completa del archivo a extraer
+            string filePath = Path.Combine(extractionDirectory, finalFileName);
+
+            try {
+                // Log de depuración
+                Log.Information($"Extrayendo archivo: {fileItem.Path}, Chunk: {fileItem.Chunk}");
+
+                // Guarda el chunk
+                Utils.WadUtils.SaveChunk(
+                    fileItem.Wad,
+                    fileItem.Chunk,
+                    finalFileName,
+                    extractionDirectory
+                );
+            } catch (Exception ex) {
+                Log.Error($"Error al extraer el archivo {fileItem.Path}: {ex.Message}");
+            }
+        }
     }
 
     private ICollection<WadTreeItemModel> GetVisibleItemsForWadTree() {
