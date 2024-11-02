@@ -61,7 +61,7 @@ public partial class WadExplorer : IDisposable {
     private WadFileTextPreview _textPreview;
 
     private MudSplitter _splitter;
-    private double _splitterDimension = 30;
+    
 
     private readonly ConcurrentQueue<Task> _previewQueue = new();
 
@@ -265,6 +265,12 @@ public partial class WadExplorer : IDisposable {
             await PreviewText(fileStream, "json");
         } else if (extension is ".js") {
             await PreviewText(fileStream, "javascript");
+        } else if (extension is ".html") {
+            await PreviewText(fileStream, "html");
+        } else if (extension is ".txt") {
+            await PreviewText(fileStream, "txt");
+        } else if (extension is ".ini") {
+            await PreviewText(fileStream, "ini");
         } else {
             await SetCurrentPreviewType(WadFilePreviewType.None);
         }
@@ -298,7 +304,7 @@ public partial class WadExplorer : IDisposable {
         RigResource skeleton = new(skeletonStream);
 
         await SetCurrentPreviewType(WadFilePreviewType.Viewport);
-        await Task.Delay(25);
+        await Task.Delay(5);
 
         if (this.Config.LoadSkinnedMeshAnimations) {
             await Three.RenderSkinnedMeshFromGltf(
@@ -337,7 +343,7 @@ public partial class WadExplorer : IDisposable {
         Log.Information("Previewing static mesh");
 
         await SetCurrentPreviewType(WadFilePreviewType.Viewport);
-        await Task.Delay(25);
+        await Task.Delay(20);
 
         StaticMesh staticMesh = isAscii switch {
             true => StaticMesh.ReadAscii(stream),
@@ -349,19 +355,21 @@ public partial class WadExplorer : IDisposable {
             WadPreviewUtils.VIEWPORT_CONTAINER_ID,
             staticMesh
         );
+        await UpdateSplitterForPreviewType(); // UpdateSplitterForPreviewType para restablecer el tamaño del divisor y actualizar la interfaz
     }
 
     private async Task PreviewMapGeometry(Stream stream) {
         Log.Information("Previewing map geometry");
 
         await SetCurrentPreviewType(WadFilePreviewType.Viewport);
-        await Task.Delay(25);
+        await Task.Delay(20);
 
         await Three.RenderEnvironmentAsset(
             this.JsRuntime,
             WadPreviewUtils.VIEWPORT_CONTAINER_ID,
             new(stream)
         );
+        await UpdateSplitterForPreviewType(); // UpdateSplitterForPreviewType para restablecer el tamaño del divisor y actualizar la interfaz
     }
 
     private async Task PreviewImage(Image<Rgba32> image) {
@@ -373,6 +381,7 @@ public partial class WadExplorer : IDisposable {
         imageStream.Position = 0;
 
         await PreviewImage(imageStream);
+        await UpdateSplitterForPreviewType(); // UpdateSplitterForPreviewType para restablecer el tamaño del divisor y actualizar la interfaz
     }
 
     private async Task PreviewImage(Stream imageStream) {
@@ -385,6 +394,7 @@ public partial class WadExplorer : IDisposable {
             WadPreviewUtils.IMAGE_PREVIEW_ID,
             new DotNetStreamReference(imageStream)
         );
+        await UpdateSplitterForPreviewType(); // UpdateSplitterForPreviewType para restablecer el tamaño del divisor y actualizar la interfaz
     }
 
     private async Task PreviewPropertyBin(Stream stream) {
@@ -392,6 +402,7 @@ public partial class WadExplorer : IDisposable {
 
         await SetCurrentPreviewType(WadFilePreviewType.Text);
         await this._textPreview.PreviewRitobin(stream);
+        await UpdateSplitterForPreviewType(); // UpdateSplitterForPreviewType para restablecer el tamaño del divisor y actualizar la interfaz
     }
 
     private async Task PreviewText(Stream stream, string language) {
@@ -399,6 +410,7 @@ public partial class WadExplorer : IDisposable {
 
         await SetCurrentPreviewType(WadFilePreviewType.Text);
         await this._textPreview.Preview(stream, language);
+        await UpdateSplitterForPreviewType(); // UpdateSplitterForPreviewType para restablecer el tamaño del divisor y actualizar la interfaz
     }
 
     private async Task SetCurrentPreviewType(WadFilePreviewType previewType) {
@@ -407,9 +419,9 @@ public partial class WadExplorer : IDisposable {
                 "destroyThreeJsRenderer",
                 WadPreviewUtils.VIEWPORT_CONTAINER_ID
             );
-
+            
         this.WadTree.CurrentPreviewType = previewType;
-        StateHasChanged();
+        await UpdateSplitterForPreviewType(); // UpdateSplitterForPreviewType para restablecer el tamaño del divisor y actualizar la interfaz
     }
     #endregion
 
@@ -427,15 +439,56 @@ public partial class WadExplorer : IDisposable {
             await SetCurrentPreviewType(WadFilePreviewType.None);
         }
     }
+    
+    /// Establecer la dimensión inicial
+    private double _splitterDimension = 100; // Valor inicial
+    private bool _userAdjustedDimension = false; // Indica si el usuario ha ajustado el divisor
 
-    private async Task OnDimensionChanged(double dimension) {
-        this._splitterDimension = dimension;
+    private async Task UpdateSplitterForPreviewType()
+    {
+        // Establecer pequeño delay
+        await Task.Delay(5);
+        
+        // Establecer la dimensión inicial
+        double defaultDimension = 100;
 
-        if (this.WadTree?.CurrentPreviewType is WadFilePreviewType.Viewport)
-            await this.JsRuntime.InvokeVoidAsync(
-                "resizeViewport",
-                WadPreviewUtils.VIEWPORT_CONTAINER_ID
-            );
+        // Ajusta la dimensión del divisor dependiendo del tipo de vista previa
+        if (this.WadTree?.CurrentPreviewType == WadFilePreviewType.Image)
+        {
+            _splitterDimension = 60;
+        }
+        else if (this.WadTree?.CurrentPreviewType == WadFilePreviewType.Text)
+        {
+            if (!_userAdjustedDimension)
+            {
+                _splitterDimension = 50;
+            }
+        }
+        else if (this.WadTree?.CurrentPreviewType == WadFilePreviewType.Viewport)
+        {
+            _splitterDimension = 0; // Visibilidad completa del viewport
+        }
+        else
+        {
+            _splitterDimension = defaultDimension; // Tamaño original o ajustado
+            _userAdjustedDimension = false; // Reseteamos el ajuste de usuario
+        }
+
+        // Actualiza la interfaz de usuario
+        StateHasChanged();
+    }
+
+
+    // Método para manejar el cambio de dimensión
+    private void OnDimensionChanged(double dimension) 
+    {
+        // Permitir el ajuste manual de la dimensión
+        if (this.WadTree?.CurrentPreviewType == WadFilePreviewType.Viewport || 
+            this.WadTree?.CurrentPreviewType == WadFilePreviewType.Text)
+        {
+            this._splitterDimension = dimension;
+            _userAdjustedDimension = true; // El usuario ha ajustado la dimensión
+        }
     }
 
     private void OnCollapseAll() {

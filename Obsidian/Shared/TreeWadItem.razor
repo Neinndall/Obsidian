@@ -7,14 +7,14 @@
 
 <div class="tree-view-item-wrapper cursor-pointer @(Item.IsSelected ? "tree-view-item-wrapper-selected" : "")"
      style="height: 30px;"
-     @ondblclick="OnRowDoubleClick" @ondblclick:stopPropagation @ondblclick:preventDefault>
+     @onclick="OnRowClick"> <!-- Asegúrate de que esta línea esté cerrada correctamente -->
     <MudMenu Dense PositionAtCurser FullWidth="false" ActivationEvent="MouseEvent.RightClick" Size="Size.Small">
         <ChildContent>
-            <MudMenuItem Icon="@Icons.Material.TwoTone.CopyAll" IconSize="Size.Small" IconColor="Color.Primary"
+            <MudMenuItem Icon="@Icons.Material.Outlined.CopyAll" IconSize="Size.Small" IconColor="Color.Primary"
                          OnClick="@CopyPathToClipboard">
                 <MudText Typo="Typo.subtitle2">Copy Path</MudText>
             </MudMenuItem>
-            <MudMenuItem Icon="@Icons.Material.TwoTone.CopyAll" IconSize="Size.Small" IconColor="Color.Primary"
+            <MudMenuItem Icon="@Icons.Material.Outlined.CopyAll" IconSize="Size.Small" IconColor="Color.Primary"
                          OnClick="@CopyNameToClipboard">
                 <MudText Typo="Typo.subtitle2">Copy Name</MudText>
             </MudMenuItem>
@@ -28,13 +28,13 @@
             }
             @if (Item.IsWadArchive)
             {
-                <MudMenuItem Icon="@Icons.Material.TwoTone.Delete" IconSize="Size.Small" IconColor="Color.Primary"
+                <MudMenuItem Icon="@Icons.Material.Outlined.Delete" IconSize="Size.Small" IconColor="Color.Primary"
                          OnClick="@Delete">
                     <MudText Typo="Typo.subtitle2">Delete</MudText>
                 </MudMenuItem>
             }
             <MudDivider />
-            <MudMenuItem Icon="@Icons.Material.TwoTone.Code" IconSize="Size.Small" IconColor="Color.Primary">
+            <MudMenuItem Icon="@Icons.Material.Outlined.Code" IconSize="Size.Small" IconColor="Color.Primary">
                 <MudTooltip Delay="150" Placement="Placement.Right" Color="Color.Dark">
                     <ChildContent>
                         <MudText Typo="Typo.subtitle2">Details</MudText>
@@ -63,37 +63,29 @@
         </ChildContent>
         <ActivatorContent>
             <table class="tree-view-item" style="height: 30px;">
-                <tr @key="Item.Id" @onclick="OnRowClick">
+                <tr @key="Item.Id">
                     @for (int i = 0; i < Item.Depth; i++)
                     {
                         <td class="tree-view-item-childrenLine"></td>
                     }
-                    <td style="vertical-align: middle; width: 20px">
+                    <td style="vertical-align: middle; width: 18px">
                         @if (Item.Type is WadTreeItemType.Directory)
                         {
-                            <MudIconButton Icon="@(Item.IsExpanded ? Icons.Material.TwoTone.KeyboardArrowDown : Icons.Material.TwoTone.KeyboardArrowRight)"
+                            <MudIconButton Icon="@(Item.IsExpanded ? Icons.Material.Outlined.KeyboardArrowDown : Icons.Material.Outlined.KeyboardArrowRight)"
                                        Color="Color.Inherit" Size="Size.Small"
-                                       OnClick="@OnToggleExpand" @ondblclick:stopPropagation />
+                                       OnClick="@OnToggleExpand" />
                         }
                     </td>
                     <td style="width: 28px">
-                        <MudCheckBox StopClickPropagation
-                                     Dense
+                        <MudCheckBox Dense
                                      T="bool"
                                      Checked="@IsChecked"
                                      CheckedChanged="@OnCheckedChanged"
                                      Color="Color.Primary" Size="Size.Small" />
-                    </td> <!-- Cierra aquí la etiqueta <td> del MudCheckBox -->
+                    </td>
                     <td style="width: 24px; text-align: left; vertical-align: middle;">
                         <div style="display: flex; align-items: center; justify-content: flex-start; height: 100%;">
-                            @if (Item.Type is WadTreeItemType.File)
-                            {
-                                @GetCustomIcon(Item) <!-- Usar GetCustomIcon para archivos -->
-                            }
-                            else
-                            {
-                                <MudIcon Icon="@Item.GetIcon()" Size="Size.Small" Color="@((Item.IsHighlighted) ? Color.Primary : Color.Inherit)" />
-                            }
+                            <MudIcon Icon="@Item.GetIcon()" Size="Size.Small" Color="@((Item.IsHighlighted) ? Color.Primary : Color.Inherit)" />
                         </div>
                     </td>
                     <td class="tree-view-item-name">
@@ -105,21 +97,3 @@
         </ActivatorContent>
     </MudMenu>
 </div>
-
-@code {
-    private RenderFragment GetCustomIcon(WadTreeItemModel item) => builder =>
-    {
-        var icon = item.Type switch
-        {
-            WadTreeItemType.File when item.Name.EndsWith(".json") => Icons.Material.Outlined.TextSnippet, // Icono específico para JSON
-            _ => Icons.Material.Outlined.InsertDriveFile // Icono por defecto para otros archivos
-        };
-
-        builder.OpenComponent<MudIcon>(0);
-        builder.AddAttribute(1, "Class", "d-block");
-        builder.AddAttribute(2, "Icon", icon);
-        builder.AddAttribute(3, "Size", Size.Small);
-        builder.AddAttribute(4, "Color", item.IsHighlighted ? Color.Primary : Color.Inherit);
-        builder.CloseComponent();
-    };
-}

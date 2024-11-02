@@ -2,11 +2,13 @@
 @using LeagueToolkit.Core.Wad;
 @using LeagueToolkit.Toolkit.Ritobin;
 @using Obsidian.Data.Wad;
+@using System.Text.Json;
 @using System.Text;
 @using Obsidian.Services;
 @using BlazorMonaco;
 @using BlazorMonaco.Editor;
 @using MonacoEditorGlobal = BlazorMonaco.Editor.Global;
+@using System.Text.RegularExpressions;
 @using Obsidian.Utils;
 
 <style>
@@ -38,26 +40,18 @@
     private StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor)
     {
         return new StandaloneEditorConstructionOptions
-            {
-                Theme = "vs-dark",
-                AutomaticLayout = true,
-                Value = "",
-                ReadOnly = true,
-                CodeLens = true,
-            };
+        {
+            Theme = "vs-dark",
+            AutomaticLayout = true,
+            Value = "",
+            ReadOnly = true,
+            CodeLens = true,
+        };
     }
 
     private async Task OnDidInit()
     {
         await this.Js.InvokeVoidAsync("registerRitobinLanguage");
-    }
-
-    public async Task Preview(Stream stream, string language)
-    {
-        using StreamReader reader = new(stream);
-
-        await this._codeEditor.SetValue(reader.ReadToEnd());
-        await MonacoEditorGlobal.SetModelLanguage(await this._codeEditor.GetModel(), language);
     }
 
     public async Task PreviewRitobin(Stream stream)
@@ -74,4 +68,47 @@
         await this._codeEditor.SetValue(writer.WritePropertyBin(new(stream)));
         await MonacoEditorGlobal.SetModelLanguage(await this._codeEditor.GetModel(), "ritobin");
     }
+
+    public async Task Preview(Stream stream, string language)
+    {
+        using StreamReader reader = new(stream);
+        string rawContent = await reader.ReadToEndAsync();
+
+        // Manejo de contenido según el tipo de lenguaje
+        if (language.Equals("html", StringComparison.OrdinalIgnoreCase))
+        {
+            // Para HTML, mostrar el contenido tal cual
+            await this._codeEditor.SetValue(rawContent);
+            await MonacoEditorGlobal.SetModelLanguage(await this._codeEditor.GetModel(), "html");
+        }
+        else
+        {
+            // Para otros tipos de contenido, intenta formatear como JSON
+            string formattedJson = FormatJson(rawContent);
+            await this._codeEditor.SetValue(formattedJson);
+            await MonacoEditorGlobal.SetModelLanguage(await this._codeEditor.GetModel(), language);
+        }
+    }
+
+    private string FormatJson(string json)
+    {
+        try
+        {
+            using JsonDocument doc = JsonDocument.Parse(json);
+            return JsonSerializer.Serialize(doc, new JsonSerializerOptions { WriteIndented = true });
+        }
+        catch (JsonException)
+        {
+            // Si el contenido no es JSON válido, devuelve el contenido original
+            return json; 
+        }
+    }
+
+    private string ExtractJsonFromJavaScript(string jsContent)
+    {
+        // Aquí puedes ajustar la expresión regular para extraer JSON correctamente
+        var match = Regex.Match(jsContent, @"\{.*?\}", RegexOptions.Singleline);
+        return match.Success ? FormatJson(match.Value) : null;
+    }
+
 }

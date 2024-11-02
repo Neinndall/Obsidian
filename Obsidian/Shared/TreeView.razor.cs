@@ -66,6 +66,6 @@ public partial class TreeView<TItem>
     private void UpdateSearchTerm(string searchTerm)
     {
         _searchTerm = searchTerm;
-        // Actualización del árbol si es necesario.
+        StateHasChanged(); // Actualiza la interfaz de usuario
     }
 }

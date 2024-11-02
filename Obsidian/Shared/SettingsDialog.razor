@@ -1,11 +1,12 @@
 ﻿@using Microsoft.WindowsAPICodePack.Dialogs;
 @using Obsidian.Data;
 @using PhotinoNET;
+
 <MudDialog DisableSidePadding>
     <TitleContent>
         <MudStack Row AlignItems="AlignItems.Center">
-            <MudIcon Icon="@Icons.Material.TwoTone.Settings" Size="Size.Large" Color="Color.Primary" />
-            <MudText Typo="Typo.h4">
+            <MudIcon Icon="@Icons.Material.Outlined.Settings" Size="Size.Large" Color="Color.Primary" />
+            <MudText Typo="Typo.h5" Class="m1-2">
                 Settings
             </MudText>
         </MudStack>
@@ -17,7 +18,13 @@
                     <DirectoryInput Label="League of Legends directory"
                                     Directory="@Config.GameDataDirectory"
                                     OnClearDirectory="@(_ => SetGameDataDirectory(null))"
-                                    OnSelectDirectory="SelectGameDataDirectory" />
+                                    OnSelectDirectory="SelectGameDataDirectory">
+                        <DescriptionContent>
+                            <MudText Typo="Typo.caption" Class="mt1-2">
+                                This is the directory where League of Legends is installed.
+                            </MudText>
+                        </DescriptionContent>
+                    </DirectoryInput>
                 </MudItem>
                 <MudItem xs="12">
                     <DirectoryInput Label="Default Extract Directory"
@@ -25,38 +32,32 @@
                                     OnClearDirectory="@(_ => Config.DefaultExtractDirectory = null)"
                                     OnSelectDirectory="SelectDefaultExportDirectory">
                         <DescriptionContent>
-                            <MudText>
-                                This is the default directory that will be used for exporting files
+                            <MudText Typo="Typo.caption" Class="mt1-2">
+                                This is the default directory that will be used for exporting files.
                             </MudText>
                         </DescriptionContent>
                     </DirectoryInput>
                 </MudItem>
                 <MudItem xs="12">
-                    <MudTooltip Arrow Text="Whether to update hashtables from CDragon on startup"
-                                Color="Color.Dark">
-                        <MudCheckBox Label="Sync Hashtables" @bind-Checked="Config.SyncHashtables"
-                                     Color="Color.Primary" />
+                    <MudTooltip Arrow Text="Whether to update hashtables from CDragon on startup" Color="Color.Dark">
+                        <MudCheckBox Label="Sync Hashtables from CDragon" @bind-Checked="Config.SyncHashtables" Color="Color.Primary" />
                     </MudTooltip>
                 </MudItem>
                 <MudItem xs="12">
-                    <MudTooltip Arrow Text="Enables Discord Rich Presence"
-                                Color="Color.Dark">
-                        <MudCheckBox Label="Discord Rich Presence" @bind-Checked="Config.IsRichPresenceEnabled"
-                                     Color="Color.Primary" />
+                    <MudTooltip Arrow Text="Enables Discord Rich Presence" Color="Color.Dark">
+                        <MudCheckBox Label="Discord Rich Presence" @bind-Checked="Config.IsRichPresenceEnabled" Color="Color.Primary" />
                     </MudTooltip>
                 </MudItem>
                 <MudItem xs="12">
-                    <MudTooltip Arrow Text="Whether to load animations for skinned meshes from skin packages"
-                                Color="Color.Dark">
-                        <MudCheckBox Label="Load Skinned Mesh Animations" @bind-Checked="Config.LoadSkinnedMeshAnimations"
-                                     Color="Color.Primary" />
+                    <MudTooltip Arrow Text="Whether to load animations for skinned meshes from skin packages" Color="Color.Dark">
+                        <MudCheckBox Label="Load Skinned Mesh Animations" @bind-Checked="Config.LoadSkinnedMeshAnimations" Color="Color.Primary" />
                     </MudTooltip>
                 </MudItem>
             </MudGrid>
         </MudContainer>
     </DialogContent>
     <DialogActions>
-
+        <!-- Aquí puedes añadir botones de acción si es necesario -->
     </DialogActions>
 </MudDialog>
 
@@ -78,6 +79,7 @@
 
         SetGameDataDirectory(dialog.FileName);
     }
+
     public void SelectDefaultExportDirectory()
     {
         CommonOpenFileDialog dialog = new() { IsFolderPicker = true };

@@ -39,25 +39,15 @@ public partial class TreeWadItem {
     }
 
     private async Task OnRowClick(MouseEventArgs e) {
-        if (this.Item.IsSelected)
-            return;
-
-        if (e.ShiftKey) {
-            SelectMultiple();
-        } else if (e.CtrlKey) {
-            this.IsChecked = !this.IsChecked;
-        } else {
+        if (this.Item.Type == WadTreeItemType.File) {
             SelectItem();
-            await this.Explorer.UpdateSelectedFile(this.Item);
+            await this.Explorer.UpdateSelectedFile(this.Item);  // Llama a la función para abrir o visualizar el archivo
+        } 
+        else if (this.Item.Type == WadTreeItemType.Directory) {
+            ToggleExpand();  // Expande o contrae si es directorio
         }
 
-        await this.OnSelect.InvokeAsync(this);
-    }
-
-    private void OnRowDoubleClick(MouseEventArgs e) {
-        if (this.Item.Type is WadTreeItemType.Directory)
-            ToggleExpand();
-
+        await this.OnSelect.InvokeAsync(this);  // Para refrescar el estado visual de la selección
         this.Explorer.RefreshState();
     }
 
@@ -80,6 +70,7 @@ public partial class TreeWadItem {
     private void ToggleExpand() {
         this.Item.IsExpanded = !this.Item.IsExpanded;
     }
+
 
     private async Task CopyNameToClipboard() {
         await this.JsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", this.Item.Name);
@@ -134,8 +125,19 @@ public partial class TreeWadItem {
         if (this.Item is not WadTreeFileModel fileItem)
             return;
 
-        // Diálogo para seleccionar el archivo de guardado
-        CommonSaveFileDialog dialog = new("Save") { DefaultFileName = fileItem.Name };
+        // Asegúrate de incluir la extensión en el nombre por defecto
+        string extension = Path.GetExtension(fileItem.Path); // Obtiene la extensión del archivo
+        string defaultFileName = $"{fileItem.Name}{extension}"; // Añade la extensión al nombre
+
+        // Crear el diálogo de guardado
+        CommonSaveFileDialog dialog = new("Save") {
+            DefaultFileName = defaultFileName
+        };
+
+        // Añadir filtros para los tipos de archivos específicos
+        dialog.Filters.Add(new CommonFileDialogFilter($"{extension.ToUpper()}", $"*{extension}")); // Filtro basado en la extensión específica
+        dialog.Filters.Add(new CommonFileDialogFilter("All the Files", "*.*")); // Opción para todos los archivos
+
         if (dialog.ShowDialog(this.Explorer.Window.WindowHandle) != CommonFileDialogResult.Ok)
             return;
 
@@ -143,10 +145,9 @@ public partial class TreeWadItem {
         Log.Information($"Saving {fileItem.Path} to {dialog.FileName}");
         this.Explorer.ToggleExporting(true);
         try {
-            // Aquí necesitas obtener el directorio de guardado
-            string saveDirectory = System.IO.Path.GetDirectoryName(dialog.FileName);
-            WadUtils.SaveChunk(fileItem.Wad, fileItem.Chunk, dialog.FileName, saveDirectory); // Agregar saveDirectory aquí
-            this.Explorer.Snackbar.Add($"Saved {fileItem.Name}", Severity.Success);
+            string saveDirectory = Path.GetDirectoryName(dialog.FileName) ?? string.Empty;
+            WadUtils.SaveChunk(fileItem.Wad, fileItem.Chunk, fileItem.Path, saveDirectory);
+            this.Explorer.Snackbar.Add($"Save {fileItem.Name}", Severity.Success);
         } catch (Exception exception) {
             // Muestra los errores en el Snackbar
             this.Explorer.Snackbar.Add($"Error: {exception.Message}", Severity.Error);

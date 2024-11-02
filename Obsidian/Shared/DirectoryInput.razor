@@ -1,13 +1,13 @@
 ﻿<MudStack Spacing="0">
     <MudField FullWidth Label="@Label" Variant="Variant.Filled">
         <MudStack Row AlignItems="AlignItems.Center">
-            <MudIconButton Icon="@Icons.Material.TwoTone.FolderOpen"
+            <MudIconButton Icon="@Icons.Material.Outlined.FolderOpen"
                            Variant="Variant.Filled" Color="Color.Primary"
                            OnClick="OnSelectDirectory" />
             @if (string.IsNullOrEmpty(Directory) is false)
             {
                 <MudText Class="flex-grow-1">@Directory</MudText>
-                <MudIconButton Icon="@Icons.Material.TwoTone.Close" Size="Size.Small"
+                <MudIconButton Icon="@Icons.Material.Outlined.Close" Size="Size.Small"
                            OnClick="@OnClearDirectory" />
             }
         </MudStack>

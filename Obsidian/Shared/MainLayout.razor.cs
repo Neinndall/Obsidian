@@ -44,20 +44,6 @@ public partial class MainLayout {
         this._isReady = true;
     }
 
-    private void OpenSettings() => this.DialogService.Show<SettingsDialog>();
-
-    private async Task SubmitBugReport() =>
-        await this.Js.InvokeVoidAsync(
-            "useCmd",
-            @"explorer ""https://github.com/Crauzer/Obsidian/issues/new?assignees=&labels=bug%2C+triage&template=bug_report.md&title=%5BBUG%5D+%2A%2ABug+report+title+here%2A%2A"""
-        );
-
-    private async Task GoToGithub() =>
-        await this.Js.InvokeVoidAsync(
-            "useCmd",
-            @"explorer ""https://github.com/Crauzer/Obsidian"""
-        );
-
     private async Task GoToNewRelease() =>
         await this.Js.InvokeVoidAsync("useCmd", @$"explorer ""{this.UpdateUrl}""");
 

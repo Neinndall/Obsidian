@@ -4,117 +4,117 @@ namespace Obsidian.Data;
 
 public class Config {
     #region Wad Hashtable Checksums
-    public DateTime GameHashesLastUpdate {
-        get => this._gameHashesLastUpdate;
+    public DateTime ServerGameHashesLastUpdate {
+        get => this._serverGameHashesLastUpdate;
         set {
-            this._gameHashesLastUpdate = value;
+            this._serverGameHashesLastUpdate = value;
             Save();
         }
     }
-    private DateTime _gameHashesLastUpdate;
+    private DateTime _serverGameHashesLastUpdate;
 
-    public DateTime LcuHashesLastUpdate {
-        get => this._lcuHashesLastUpdate;
+    public DateTime ServerLcuHashesLastUpdate {
+        get => this._serverLcuHashesLastUpdate;
         set {
-            this._lcuHashesLastUpdate = value;
+            this._serverLcuHashesLastUpdate = value;
             Save();
         }
     }
-    private DateTime _lcuHashesLastUpdate;
+    private DateTime _serverLcuHashesLastUpdate;
     #endregion
 
     #region Bin Hashtable Checksums
-    public DateTime BinFieldsHashesLastUpdate {
-        get => this._binFieldsHashesLastUpdate;
+    public DateTime ServerBinFieldsHashesLastUpdate {
+        get => this._serverBinFieldsHashesLastUpdate;
         set {
-            this._binFieldsHashesLastUpdate = value;
+            this._serverBinFieldsHashesLastUpdate = value;
             Save();
         }
     }
-    private DateTime _binFieldsHashesLastUpdate;
+    private DateTime _serverBinFieldsHashesLastUpdate;
 
-    public DateTime BinTypesHashesLastUpdate {
-        get => this._binTypesHashesLastUpdate;
+    public DateTime ServerBinTypesHashesLastUpdate {
+        get => this._serverBinTypesHashesLastUpdate;
         set {
-            this._binTypesHashesLastUpdate = value;
+            this._serverBinTypesHashesLastUpdate = value;
             Save();
         }
     }
-    private DateTime _binTypesHashesLastUpdate;
+    private DateTime _serverBinTypesHashesLastUpdate;
 
-    public DateTime BinHashesHashesLastUpdate {
-        get => this._binHashesHashesLastUpdate;
+    public DateTime ServerBinHashesHashesLastUpdate {
+        get => this._serverBinHashesHashesLastUpdate;
         set {
-            this._binHashesHashesLastUpdate = value;
+            this._serverBinHashesHashesLastUpdate = value;
             Save();
         }
     }
-    private DateTime _binHashesHashesLastUpdate;
+    private DateTime _serverBinHashesHashesLastUpdate;
 
-    public DateTime BinEntriesHashesLastUpdate {
-        get => this._binEntriesHashesLastUpdate;
+    public DateTime ServerBinEntriesHashesLastUpdate {
+        get => this._serverBinEntriesHashesLastUpdate;
         set {
-            this._binEntriesHashesLastUpdate = value;
+            this._serverBinEntriesHashesLastUpdate = value;
             Save();
         }
     }
-    private DateTime _binEntriesHashesLastUpdate;
+    private DateTime _serverBinEntriesHashesLastUpdate;
     #endregion
 
-    // Solo se guardan los tamaños de los archivos del servidor
-    public long GameHashesFileSize {
-        get => this._gameHashesFileSize;
+    // Tamaño del archivo de hashes del servidor
+    public long ServerGameHashesFileSize {
+        get => this._serverGameHashesFileSize;
         set {
-            this._gameHashesFileSize = value;
+            this._serverGameHashesFileSize = value;
             Save();
         }
     }
-    private long _gameHashesFileSize;
+    private long _serverGameHashesFileSize;
 
-    public long LcuHashesFileSize {
-        get => this._lcuHashesFileSize;
+    public long ServerLcuHashesFileSize {
+        get => this._serverLcuHashesFileSize;
         set {
-            this._lcuHashesFileSize = value;
+            this._serverLcuHashesFileSize = value;
             Save();
         }
     }
-    private long _lcuHashesFileSize;
+    private long _serverLcuHashesFileSize;
 
-    public long BinFieldsFileSize {
-        get => this._binFieldsFileSize;
+    public long ServerBinFieldsFileSize {
+        get => this._serverBinFieldsFileSize;
         set {
-            this._binFieldsFileSize = value;
+            this._serverBinFieldsFileSize = value;
             Save();
         }
     }
-    private long _binFieldsFileSize;
+    private long _serverBinFieldsFileSize;
 
-    public long BinClassesFileSize {
-        get => this._binClassesFileSize;
+    public long ServerBinClassesFileSize {
+        get => this._serverBinClassesFileSize;
         set {
-            this._binClassesFileSize = value;
+            this._serverBinClassesFileSize = value;
             Save();
         }
     }
-    private long _binClassesFileSize;
+    private long _serverBinClassesFileSize;
 
-    public long BinHashesFileSize {
-        get => this._binHashesFileSize;
+    public long ServerBinHashesFileSize {
+        get => this._serverBinHashesFileSize;
         set {
-            this._binHashesFileSize = value;
+            this._serverBinHashesFileSize = value;
             Save();
         }
     }
-    private long _binHashesFileSize;
+    private long _serverBinHashesFileSize;
 
-    public long BinObjectsFileSize {
-        get => this._binObjectsFileSize;
+    public long ServerBinObjectsFileSize {
+        get => this._serverBinObjectsFileSize;
         set {
-            this._binObjectsFileSize = value;
+            this._serverBinObjectsFileSize = value;
             Save();
         }
     }
-    private long _binObjectsFileSize;
+    private long _serverBinObjectsFileSize;
 
     public bool DoNotRequireGameDirectory {
         get => this._doNotRequireGameDirectory;

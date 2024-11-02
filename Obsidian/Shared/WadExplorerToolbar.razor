@@ -2,7 +2,7 @@
 
 <MudToolBar Dense DisableGutters>
     <MudMenu Dense Class="ml-4" Label="File" Color="Color.Inherit"
-             AnchorOrigin="Origin.BottomLeft" Size="Size.Medium">
+             AnchorOrigin="Origin.BottomLeft" Size="Size.Small" Style="color: white;">
         <MudMenuItem Disabled="@(WadTree is null)"
                      Icon="@CustomIcons.Material.ArchiveEdit" IconColor="Color.Primary" IconSize="Size.Small"
                      OnClick="OnOpenWad">
@@ -21,11 +21,33 @@
             Extract Selected
         </MudMenuItem>
     </MudMenu>
+
     <MudMenu Dense Class="ml-4" Label="Hashtable" Color="Color.Inherit"
-             AnchorOrigin="Origin.BottomLeft" Size="Size.Medium">
+             AnchorOrigin="Origin.BottomLeft" Size="Size.Small" Style="color: white;">
         <MudMenuItem Icon="@CustomIcons.Material.TableArrowUp" IconColor="Color.Primary" IconSize="Size.Small"
                      OnClick="OnLoadHashtable">
             Load hashtable
+        </MudMenuItem>
+    </MudMenu>
+
+    <MudMenu Dense Class="ml-4" Label="Settings" Color="Color.Inherit"
+             AnchorOrigin="Origin.BottomLeft" Size="Size.Small" Style="color: white;">
+        <MudMenuItem Icon="@Icons.Material.Outlined.Settings" IconColor="Color.Primary" IconSize="Size.Small"
+                     OnClick="OpenSettings">
+            Settings
+        </MudMenuItem>
+    </MudMenu>
+
+    <MudMenu Dense Class="ml-2" Label="Help" Color="Color.Inherit"
+             AnchorOrigin="Origin.BottomLeft" Size="Size.Small" Style="color: white;">
+        <MudMenuItem Icon="@Icons.Material.Outlined.BugReport" IconColor="Color.Primary" IconSize="Size.Small"
+                     OnClick="SubmitBugReport">
+            Report a bug
+        </MudMenuItem>
+
+        <MudMenuItem Icon="@Icons.Custom.Brands.GitHub" IconColor="Color.Primary" IconSize="Size.Small"
+                     OnClick="GoToGithub">
+            Go to GitHub
         </MudMenuItem>
     </MudMenu>
 </MudToolBar>

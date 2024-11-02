@@ -47,24 +47,12 @@
             @if (!string.IsNullOrEmpty(this.UpdateUrl))
             {
                 <MudTooltip Text="Update available!" Color="Color.Dark" Placement="Placement.Right">
-                    <MudIconButton Icon="@Icons.Material.TwoTone.Download" Color="Color.Info" Size="Size.Medium"
+                    <MudIconButton Icon="@Icons.Material.Outlined.Download" Color="Color.Info" Size="Size.Medium"
                                    OnClick="GoToNewRelease" />
                 </MudTooltip>
             }
             <MudSpacer />
             <MudStack AlignItems="AlignItems.Center">
-                <MudTooltip Text="Settings" Color="Color.Dark" Placement="Placement.Right">
-                    <MudIconButton Icon="@Icons.Material.TwoTone.Settings" Size="Size.Large"
-                                   OnClick="OpenSettings" />
-                </MudTooltip>
-                <MudTooltip Text="Submit Bug Report" Color="Color.Dark" Placement="Placement.Right">
-                    <MudIconButton Icon="@CustomIcons.Material.Alert" Color="Color.Inherit" Size="Size.Medium"
-                                   OnClick="SubmitBugReport" />
-                </MudTooltip>
-                <MudTooltip Text="Go to GitHub" Color="Color.Dark" Placement="Placement.Right">
-                    <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Size="Size.Medium"
-                                   OnClick="GoToGithub" />
-                </MudTooltip>
                 <MudText Typo="Typo.body2">
                     @Program.VERSION.ToString()
                 </MudText>
@@ -76,13 +64,12 @@
         {
             @Body
         }
-    </MudMainContent>
-    @if (_isLoadingHashtable) // Agregar esta condición
-    {
-        <MudOverlay DarkBackground Visible="_isLoadingHashtable" ZIndex="9999">
-            <MudStack AlignItems="AlignItems.Center">
-                <MudProgressCircular Indeterminate Color="Color.Primary" Size="Size.Large" />
-                <MudText Typo="Typo.h5">Syncing hashtables from CDragon...</MudText>
+    </MudMainContent>   
+    @if (_isLoadingHashtable) {
+        <MudOverlay DarkBackground Visible="true" ZIndex="9999">
+            <MudStack Direction="Direction.Row" Spacing="2" Style="position: fixed; bottom: 20px; right: 20px; align-items: center;">
+                <MudProgressCircular Indeterminate Color="Color.Primary" Size="Size.Small" />
+                <MudText Typo="Typo.h6" Style="color: #FFFFFF; margin-left: 5px;">Syncing hashtables with CDragon...</MudText>
             </MudStack>
         </MudOverlay>
     }
