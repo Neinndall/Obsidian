@@ -2,6 +2,7 @@
 using MudBlazor;
 using MudBlazor.Services;
 using Obsidian.Data;
+using Obsidian.Shared;
 using Obsidian.Services;
 using Photino.Blazor;
 using PhotinoAPI;
@@ -51,12 +52,13 @@ public class Program {
 
         Log.Information("Customizing window");
 
-        // customize window
-        app.MainWindow.UseOsDefaultSize = false;
+       // customize window
+        app.MainWindow.UseOsDefaultSize = false; // No usar el tamaño por defecto del sistema
         app.MainWindow
             .SetIconFile("favicon.ico")
-            .SetTitle(string.Empty)
-            .SetUseOsDefaultSize(true)
+            .SetTitle("Obsidian")
+            .SetSize(1400, 800) // Tamaño de la Window
+            .SetUseOsDefaultSize(false)
             .SetContextMenuEnabled(false)
             .RegisterWindowCreatedHandler(WindowCreatedHandler)
             .RegisterApi(new());
