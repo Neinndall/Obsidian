@@ -7,6 +7,7 @@ using Obsidian.Services;
 using Obsidian.Utils;
 using Serilog;
 using Toolbelt.Blazor.HotKeys2;
+using System.IO; // Asegúrate de tener esta directiva para Directory
 
 namespace Obsidian.Pages;
 
@@ -40,16 +41,24 @@ public partial class ExplorerPage {
 
         WadTreeModel TryCreateWadTree() {
             try {
+                var wadFiles = Directory
+                    .EnumerateFiles(
+                        this.Config.GameDataDirectory,
+                        "*.*",
+                        SearchOption.AllDirectories
+                    )
+                    .Where(x => x.EndsWith(".wad") || x.EndsWith(".wad.client"))
+                    .ToList();
+
+                if (!wadFiles.Any()) {
+                    SnackbarUtils.ShowHardError(this.Snackbar, new InvalidOperationException("No .wad or .wad.client files found"));
+                    return CreateEmptyWadTree();
+                }
+
                 return new(
                     this.Hashtable,
                     this.Config,
-                    Directory
-                        .EnumerateFiles(
-                            this.Config.GameDataDirectory,
-                            "*.*",
-                            SearchOption.AllDirectories
-                        )
-                        .Where(x => x.EndsWith(".wad") || x.EndsWith(".wad.client"))
+                    wadFiles
                 );
             } catch (Exception exception) {
                 SnackbarUtils.ShowHardError(
@@ -67,16 +76,13 @@ public partial class ExplorerPage {
 
     private async Task RebuildWadTree() {
         await InvokeAsync(() => {
-            this.WadTree.Dispose();
+            this.WadTree?.Dispose();
             this.WadTree = null;
-
             StateHasChanged();
         });
 
         await InvokeAsync(async () => {
-            await Task.Run(() => {
-                this.WadTree = CreateWadTree();
-            });
+            this.WadTree = await Task.Run(() => CreateWadTree());
             StateHasChanged();
         });
     }
@@ -84,9 +90,7 @@ public partial class ExplorerPage {
     protected override void OnInitialized() {
         _ = InvokeAsync(async () => {
             try {
-                await Task.Run(() => {
-                    this.WadTree = CreateWadTree();
-                });
+                this.WadTree = await Task.Run(() => CreateWadTree());
                 StateHasChanged();
             } catch (Exception exception) {
                 SnackbarUtils.ShowHardError(this.Snackbar, exception);

@@ -106,20 +106,23 @@ public class WadTreeModel : IWadTreeParent, IDisposable {
         }
     }
 
+    // Dispose pattern para liberar recursos
     public void Dispose() {
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
 
     protected virtual void Dispose(bool disposing) {
-        if (this.IsDisposed)
-            return;
+        if (IsDisposed) return;
 
-        if (disposing)
-            foreach (var (_, wad) in this._mountedWadFiles)
+        if (disposing) {
+            // Liberar los archivos Wad montados
+            foreach (var (_, wad) in _mountedWadFiles) {
                 wad?.Dispose();
+            }
+        }
 
-        this.IsDisposed = true;
+        IsDisposed = true;
     }
 }
 

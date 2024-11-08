@@ -56,7 +56,7 @@ public class Program {
         app.MainWindow.UseOsDefaultSize = false; // No usar el tamaño por defecto del sistema
         app.MainWindow
             .SetIconFile("favicon.ico")
-            .SetTitle("Obsidian")
+            .SetTitle(string.Empty)
             .SetSize(1400, 800) // Tamaño de la Window
             .SetUseOsDefaultSize(false)
             .SetContextMenuEnabled(false)

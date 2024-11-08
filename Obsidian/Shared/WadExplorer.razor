@@ -12,13 +12,13 @@
         border-radius: 0%;
     }
 
-        .wad-tab-close-button:hover {
-            background-color: transparent !important;
-        }
+    .wad-tab-close-button:hover {
+        background-color: transparent !important;
+    }
 
-            .wad-tab-close-button:hover > .mud-icon-button-label > svg {
-                fill: #ff3f5fff;
-            }
+    .wad-tab-close-button:hover > .mud-icon-button-label > svg {
+        fill: #ff3f5fff;
+    }
 
     .mud-tab {
         text-transform: none;
@@ -31,6 +31,13 @@
     .mud-tabs-panels {
         background: rgb(58,59,71);
         background: linear-gradient(0deg, rgba(58,59,71,1) 0%, rgba(50,51,61,1) 100%);
+    }
+
+    .exporting-status {
+        position: fixed; 
+        bottom: 20px; 
+        right: 20px; 
+        opacity: 0.9; /* Opcional: ajusta la opacidad */
     }
 </style>
 
@@ -58,55 +65,61 @@
                 {
                     <MudPaper Square Class="mud-background relative" Elevation="2">
                         <MudStack Row
-                              Class="mx-1 my-1"
-                              Spacing="2">
+                                  Class="mx-1 my-1"
+                                  Spacing="2">
                             <MudTooltip Text="Collapse All" Color="Color.Dark">
                                 <MudIconButton Icon="@CustomIcons.Material.CollapseAll"
-                                           Size="Size.Small"
-                                           Variant="Variant.Text"
-                                           OnClick="@OnCollapseAll" />
+                                               Size="Size.Small"
+                                               Variant="Variant.Text"
+                                               OnClick="@OnCollapseAll" />
                             </MudTooltip>
                             <MudTooltip Text="Expand All" Color="Color.Dark">
                                 <MudIconButton Icon="@CustomIcons.Material.ExpandAll"
-                                           Size="Size.Small"
-                                           Variant="Variant.Text"
-                                           OnClick="@OnExpandAll" />
+                                               Size="Size.Small"
+                                               Variant="Variant.Text"
+                                               OnClick="@OnExpandAll" />
                             </MudTooltip>
                             <MudDivider Vertical FlexItem/>
                             <MudTooltip Text="Refresh" Color="Color.Dark">
                                 <MudIconButton Icon="@CustomIcons.Material.Refresh"
-                                           Size="Size.Small"
-                                           Variant="Variant.Text"
-                                           OnClick="@OnRefreshTree" />
+                                               Size="Size.Small"
+                                               Variant="Variant.Text"
+                                               OnClick="@OnRefreshTree" />
                             </MudTooltip>
+                            <MudDivider Vertical FlexItem/>
+                            <MudTooltip Text="Deselect All" Color="Color.Dark">
+                                <MudIconButton Icon="@Icons.Material.Filled.ClearAll"
+                                               Size="Size.Small"
+                                               Variant="Variant.Text"
+                                               OnClick="DeselectAllItems" />
+                            </MudTooltip>
+
                             <MudSpacer />
                             <MudTooltip Text="Preview selected items" Color="Color.Dark">
-
                                 <MudToggleIconButton Toggled="@Config.ShouldPreviewSelectedItems"
-                                                 ToggledChanged="@OnShouldPreviewSelectedItemsChanged"
-                                                 Icon="@CustomIcons.Material.EyeRefresh"
-                                                 ToggledIcon="@CustomIcons.Material.EyeRefresh"
-                                                 Size="Size.Small"
-                                                 ToggledSize="Size.Small"
-                                                 Color="Color.Default"
-                                                 ToggledColor="Color.Primary"
-                                                 Variant="Variant.Text" />
+                                                     ToggledChanged="@OnShouldPreviewSelectedItemsChanged"
+                                                     Icon="@CustomIcons.Material.EyeRefresh"
+                                                     ToggledIcon="@CustomIcons.Material.EyeRefresh"
+                                                     Size="Size.Small"
+                                                     ToggledSize="Size.Small"
+                                                     Color="Color.Default"
+                                                     ToggledColor="Color.Primary"
+                                                     Variant="Variant.Text" />
                             </MudTooltip>
                         </MudStack>
                         <MudDivider />
                         <WadFilter FullWidth
-                               @ref="_wadFilterComponent"
-                               Filter="@WadTree.Filter" UseRegexFilter="@WadTree.UseRegexFilter"
-                               FilterChanged="OnFilterChanged" UseRegexFilterChanged="OnUseRegexFilterChanged" />
+                                   @ref="_wadFilterComponent"
+                                   Filter="@WadTree.Filter" UseRegexFilter="@WadTree.UseRegexFilter"
+                                   FilterChanged="OnFilterChanged" UseRegexFilterChanged="OnUseRegexFilterChanged" />
                     </MudPaper>
-
 
                     <div style="width: 100%">
                         <TreeView TItem="WadTreeItemModel"
-                              ItemsFlat="@GetVisibleItemsForWadTree()"
-                              Height="calc(100vh - 136px)"
-                              OverscanCount="25"
-                              ItemSize="36f">
+                                  ItemsFlat="@GetVisibleItemsForWadTree()"
+                                  Height="calc(100vh - 136px)"
+                                  OverscanCount="25"
+                                  ItemSize="36f">
                             <ItemTemplate>
                                 <TreeWadItem Item="@context" Explorer="this" WadTree="WadTree" />
                             </ItemTemplate>
@@ -117,8 +130,8 @@
                 {
                     <MudOverlay Absolute DarkBackground Visible>
                         <MudProgressLinear Rounded Indeterminate
-                                       Class="my-6" Style="width: 100px;"
-                                       Color="Color.Primary" Size="Size.Small" />
+                                           Class="my-6" Style="width: 100px;"
+                                           Color="Color.Primary" Size="Size.Small" />
                         <MudText Class="unselectable-text" Align="Align.Center" Typo="Typo.body2">
                             Indexing...
                         </MudText>
@@ -147,14 +160,15 @@
     <MudOverlay DarkBackground Visible="_isLoadingWadFile" ZIndex="9999">
         <MudProgressCircular Indeterminate Color="Color.Primary" />
     </MudOverlay>
-    <MudOverlay DarkBackground Visible="_isExportingFiles" ZIndex="9999">
-        @*https://stackoverflow.com/a/61865580*@
-        <MudProgressLinear Rounded Indeterminate
-                           Class="my-6" Style="width: 500px"
-                           Color="Color.Primary" Size="Size.Large" />
-        <MudText Class="unselectable-text" Align="Align.Center" Typo="Typo.body1">
-            Extracting files...
-        </MudText>
-    </MudOverlay>
+    
+<div class="exporting-status" style="display: @(_isExportingFiles ? "block" : "none")">
+    <MudProgressLinear Rounded Indeterminate
+                       Class="my-2" Style="width: 300px;"
+                       Color="Color.Primary" Size="Size.Small" />
+    <MudText Class="unselectable-text" Align="Align.Center" Typo="Typo.body2">
+        Extracting files...
+    </MudText>
+</div>
 
 </MudPaper>
+

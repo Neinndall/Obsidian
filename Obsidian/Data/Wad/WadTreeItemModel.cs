@@ -91,6 +91,9 @@ public class WadTreeItemModel : IWadTreePathable, IWadTreeParent, IComparable<Wa
             return customIcon; // Retorna el icono personalizado si existe
         }
 
+        if (this.IsWadArchive)
+            return Icons.Material.Outlined.Archive;
+        
         if (this.Type == WadTreeItemType.Directory) {
             // Asigna íconos según el estado expandido de la carpeta
             return this.IsExpanded ? Icons.Material.Outlined.FolderOpen : Icons.Material.Outlined.Folder;

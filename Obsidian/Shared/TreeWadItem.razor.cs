@@ -39,6 +39,15 @@ public partial class TreeWadItem {
     }
 
     private async Task OnRowClick(MouseEventArgs e) {
+        if (this.Item.IsSelected)
+            return;
+
+        if (e.ShiftKey) {
+            SelectMultiple();
+        } else if (e.CtrlKey) {
+            this.IsChecked = !this.IsChecked;
+        }
+        
         if (this.Item.Type == WadTreeItemType.File) {
             SelectItem();
             await this.Explorer.UpdateSelectedFile(this.Item);  // Llama a la función para abrir o visualizar el archivo
@@ -127,7 +136,7 @@ public partial class TreeWadItem {
 
         // Asegúrate de incluir la extensión en el nombre por defecto
         string extension = Path.GetExtension(fileItem.Path); // Obtiene la extensión del archivo
-        string defaultFileName = $"{fileItem.Name}{extension}"; // Añade la extensión al nombre
+        string defaultFileName = $"{fileItem.Name}"; // Nombre del archivo
 
         // Crear el diálogo de guardado
         CommonSaveFileDialog dialog = new("Save") {
