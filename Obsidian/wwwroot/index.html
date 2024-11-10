@@ -27,12 +27,29 @@
     <script src="_content/BlazorMonaco/jsInterop.js"></script>
     <script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/loader.js"></script>
     <script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.js"></script>
-
+    
     <script>
         const Photino = PhotinoAPI.Photino;
 
         async function useCmd(command) {
             await Photino.os.cmd(command);
+        }
+
+        window.setAudio = function (audioElementId, audioUrl) {
+            const audioElement = document.getElementById(audioElementId);
+            if (audioElement) {
+                audioElement.src = audioUrl;
+                audioElement.load(); // Recargar la fuente en el reproductor
+                audioElement.play();
+            }
+        };
+
+        // Crear un Blob de audio a partir de un array de bytes
+        window.createBlobFromAudioStream = function (audioBytes) {
+            // Convertir el array de bytes a un Blob (tipo audio/ogg)
+            const audioBlob = new Blob([new Uint8Array(audioBytes)], { type: 'audio/ogg' });
+            const audioUrl = URL.createObjectURL(audioBlob);  // Crear la URL del Blob
+            return audioUrl;  // Devolver la URL generada
         }
 
         window.setImage = async (imageElementId, imageStream) => {
@@ -562,5 +579,7 @@
             });
         }
     </script>
+   
+    
 </body>
 </html>

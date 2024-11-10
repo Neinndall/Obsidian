@@ -19,6 +19,10 @@ public class WadTreeModel : IWadTreeParent, IDisposable {
     public bool IsWadArchive => false;
     public bool UseRegexFilter { get; set; }
     public string Filter { get; set; }
+    
+    // Propiedad para almacenar el flujo de audio
+    public Stream CurrentAudioStream { get; set; }
+    
     public WadFilePreviewType CurrentPreviewType { get; set; }
     
     public WadTreeModel(string path) {
@@ -130,6 +134,6 @@ public enum WadFilePreviewType {
     None,
     Image,
     Viewport,
-    Text
-    // Audio
+    Text,
+    Audio
 }

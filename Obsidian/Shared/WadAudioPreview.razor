@@ -1,0 +1,53 @@
+﻿@using Obsidian.Data.Wad
+@using Serilog
+@using Obsidian.Utils
+
+<div class="audio-preview-container">
+    <!-- El componente de audio usa @ref para la referencia -->
+    <audio id="@WadPreviewUtils.AUDIO_PREVIEW_ID" controls>
+        Your browser does not support the audio element.
+    </audio>
+</div>
+
+<style>   
+    .audio-preview-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;  /* O cualquier altura que necesites */
+    }
+</style>
+
+@code {
+    
+    [Inject]
+    IJSRuntime JSRuntime { get; set; }
+    
+    [Parameter]
+    public WadTreeModel WadTree { get; set; }
+    
+    public async Task SetAudioPreview(Stream audioStream)
+    {
+        Log.Information("Previewing audio from stream");
+        
+        // Crear un MemoryStream para leer desde el audioStream
+        using (MemoryStream memoryStream = new MemoryStream())
+        {
+            // Copiar el contenido del audioStream al MemoryStream
+            await audioStream.CopyToAsync(memoryStream);
+            memoryStream.Position = 0;  // Restablecer la posición para leer desde el principio
+    
+            // Convertir el MemoryStream a un array de bytes
+            byte[] audioBytes = memoryStream.ToArray();
+    
+            // Pasar el byte array a JavaScript para crear el Blob
+            var audioUrl = await JSRuntime.InvokeAsync<string>("createBlobFromAudioStream", audioBytes);
+    
+            // Llamar a la función `setAudio` pasando el URL del Blob y el ID del elemento de audio
+            await JSRuntime.InvokeVoidAsync(
+            "setAudio",
+            WadPreviewUtils.AUDIO_PREVIEW_ID,
+            audioUrl);
+        }
+    }
+}

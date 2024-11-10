@@ -44,8 +44,10 @@ public partial class TreeWadItem {
 
         if (e.ShiftKey) {
             SelectMultiple();
+            return; // Evitar visualizacion de algun archivo
         } else if (e.CtrlKey) {
             this.IsChecked = !this.IsChecked;
+            return; // Evitar visualizacion de algun archivo
         }
         
         if (this.Item.Type == WadTreeItemType.File) {
