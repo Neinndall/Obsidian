@@ -1,7 +1,3 @@
-﻿using LeagueToolkit.Core.Wad;
-using LeagueToolkit.Hashing;
-using System.Text.RegularExpressions;
-
 namespace Obsidian.Data.Wad;
 
 public interface IWadTreePathable {
