@@ -74,20 +74,11 @@
         using StreamReader reader = new(stream);
         string rawContent = await reader.ReadToEndAsync();
 
-        // Manejo de contenido según el tipo de lenguaje
-        if (language.Equals("html", StringComparison.OrdinalIgnoreCase))
-        {
-            // Para HTML, mostrar el contenido tal cual
-            await this._codeEditor.SetValue(rawContent);
-            await MonacoEditorGlobal.SetModelLanguage(await this._codeEditor.GetModel(), "html");
-        }
-        else
-        {
-            // Para otros tipos de contenido, intenta formatear como JSON
-            string formattedJson = FormatJson(rawContent);
-            await this._codeEditor.SetValue(formattedJson);
-            await MonacoEditorGlobal.SetModelLanguage(await this._codeEditor.GetModel(), language);
-        }
+        // Para otros tipos de contenido, intenta formatear como JSON
+        string formattedContent = FormatJson(rawContent);
+
+        await this._codeEditor.SetValue(formattedContent);
+        await MonacoEditorGlobal.SetModelLanguage(await this._codeEditor.GetModel(), language);
     }
 
     private string FormatJson(string json)
@@ -103,12 +94,4 @@
             return json; 
         }
     }
-
-    private string ExtractJsonFromJavaScript(string jsContent)
-    {
-        // Aquí puedes ajustar la expresión regular para extraer JSON correctamente
-        var match = Regex.Match(jsContent, @"\{.*?\}", RegexOptions.Singleline);
-        return match.Success ? FormatJson(match.Value) : null;
-    }
-
 }

@@ -5,47 +5,39 @@ using System.Text.RegularExpressions;
 namespace Obsidian.Data.Wad;
 
 public interface IWadTreeParent : IWadTreePathable {
-    ICollection<WadTreeItemModel> Items { get; }
+    List<WadTreeItemModel> Items { get; }
 }
 
 public static class IWadTreeParentExtensions {
-    // Mejora en la forma de agregar archivos y manejo de excepciones
     public static void AddWadFile(
         this IWadTreeParent parent,
         IEnumerable<string> pathComponents,
         WadFile wad,
         WadChunk chunk
     ) {
-        if (pathComponents == null || !pathComponents.Any()) return;
-        
-        // El archivo pertenece a esta carpeta
-        if (pathComponents.Count() == 1) {
-            // Agregar archivo en la carpeta
+        // File belongs to this folder
+        if (pathComponents.Count() is 1) {
             parent.Items.Add(new WadTreeFileModel(parent, pathComponents.First(), wad, chunk));
             return;
         }
-        
+
         string folderName = pathComponents.First();
         ulong folderNameHash = XxHash64Ext.Hash(folderName);
 
-        WadTreeItemModel directory;
-        
+        WadTreeItemModel directory = null;
         lock (parent) {
-            // Mejora: Uso de un diccionario para una búsqueda más rápida
-            directory = parent.Items.FirstOrDefault(item => item.Type != WadTreeItemType.File && item.NameHash == folderNameHash)
-                ?? new WadTreeItemModel(parent, folderName);
-            
-            if (!parent.Items.Contains(directory)) {
+            directory = parent.Items.FirstOrDefault(item => item.Type is not WadTreeItemType.File && item.NameHash == folderNameHash);
+            if (directory is null) {
+                directory = new(parent, folderName);
                 parent.Items.Add(directory);
             }
         }
 
-        // Recursivamente agregar el archivo en el directorio correspondiente
         directory.AddWadFile(pathComponents.Skip(1), wad, chunk);
     }
 
     public static IEnumerable<WadTreeItemModel> TraverseFlattenedItems(this IWadTreeParent parent) {
-        if (parent?.Items == null)
+        if (parent.Items is null)
             yield break;
 
         foreach (var item in parent.Items) {
@@ -56,8 +48,10 @@ public static class IWadTreeParentExtensions {
         }
     }
 
-    public static IEnumerable<WadTreeItemModel> TraverseFlattenedCheckedItems(this IWadTreeParent parent) {
-        if (parent?.Items == null)
+    public static IEnumerable<WadTreeItemModel> TraverseFlattenedCheckedItems(
+        this IWadTreeParent parent
+    ) {
+        if (parent.Items is null)
             yield break;
 
         foreach (var item in parent.Items) {
@@ -69,46 +63,56 @@ public static class IWadTreeParentExtensions {
         }
     }
 
-    public static IEnumerable<WadTreeItemModel> TraverseFlattenedVisibleItems(this IWadTreeParent parent, string filter, bool useRegex = false) {
-        if (parent?.Items == null)
+    public static IEnumerable<WadTreeItemModel> TraverseFlattenedVisibleItems(
+        this IWadTreeParent parent,
+        string filter,
+        bool useRegex = false
+    ) {
+        if (parent.Items == null)
             yield break;
 
         foreach (var item in parent.Items) {
-            // Si hay un filtro, comprueba si el elemento coincide
             if (!string.IsNullOrEmpty(filter)) {
-                // Si el elemento actual es un archivo, se verifica el filtro
+                // If the current item is a file, we check if it matches the filter
                 if (item is WadTreeFileModel && DoesMatchFilter(item, filter, useRegex)) {
                     yield return item;
                     continue;
                 }
 
-                // Si el elemento es una carpeta, se obtiene la lista de elementos filtrados
-                var filteredItems = item.TraverseFlattenedVisibleItems(filter, useRegex).ToList();
-                if (!filteredItems.Any())
+                // If the current item is a folder, get filtered items and if there are none, skip it
+                var filteredItems = item.TraverseFlattenedVisibleItems(filter, useRegex);
+                if (!filteredItems.Any()) // Check if there are no filtered items before continuing
                     continue;
 
-                // Devuelve el directorio solo si sus hijos coinciden con el filtro
+                // Return parent only if its children are included in the filter
                 yield return item;
 
-                if (item.IsExpanded) {
-                    foreach (WadTreeItemModel itemItem in filteredItems)
-                        yield return itemItem;
-                }
+                // Recursively yield the filtered child items if expanded
+                if (item.IsExpanded)
+                    foreach (WadTreeItemModel childItem in filteredItems)
+                        yield return childItem;
             } else {
-                // Los elementos raíz siempre son visibles
+                // Root items are always visible
                 yield return item;
 
-                if (item.Type == WadTreeItemType.Directory && item.IsExpanded) {
-                    foreach (WadTreeItemModel itemItem in item.TraverseFlattenedVisibleItems(null))
-                        yield return itemItem;
-                }
+                // Expand directories if they are expanded
+                if (item.Type == WadTreeItemType.Directory && item.IsExpanded)
+                    foreach (WadTreeItemModel childItem in item.TraverseFlattenedVisibleItems(null))
+                        yield return childItem;
             }
         }
     }
 
-    public static bool DoesMatchFilter(WadTreeItemModel item, string filter, bool useRegex) {
-        return useRegex 
-            ? Regex.IsMatch(item.Path, filter, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant) 
-            : item.Path.Contains(filter, StringComparison.InvariantCultureIgnoreCase);
-    }
+
+
+    public static bool DoesMatchFilter(WadTreeItemModel item, string filter, bool useRegex) =>
+        useRegex switch {
+            true
+                => Regex.IsMatch(
+                    item.Path,
+                    filter,
+                    RegexOptions.IgnoreCase | RegexOptions.CultureInvariant
+                ),
+            false => item.Path.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
+        };
 }

@@ -2,7 +2,6 @@
 using LeagueToolkit.Utils;
 using MudBlazor;
 using System.Diagnostics;
-using System.Collections.Generic;
 using PathIO = System.IO.Path;
 
 namespace Obsidian.Data.Wad;
@@ -46,7 +45,7 @@ public class WadTreeItemModel : IWadTreePathable, IWadTreeParent, IComparable<Wa
 
     public bool IsWadArchive { get; }
     private readonly List<WadTreeItemModel> _children = new();
-    public ICollection<WadTreeItemModel> Items => _children; // Propiedad pública que expone los hijos
+    public List<WadTreeItemModel> Items => _children; // Cambié ICollection a List aquí
 
     public WadTreeItemModel(IWadTreeParent parent, string name) {
         this.Parent = parent;

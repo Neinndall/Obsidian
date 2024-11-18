@@ -23,9 +23,6 @@
     [Inject]
     IJSRuntime JSRuntime { get; set; }
     
-    [Parameter]
-    public WadTreeModel WadTree { get; set; }
-    
     public async Task SetAudioPreview(Stream audioStream)
     {
         Log.Information("Previewing audio from stream");

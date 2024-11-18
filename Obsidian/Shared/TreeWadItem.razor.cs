@@ -82,7 +82,6 @@ public partial class TreeWadItem {
         this.Item.IsExpanded = !this.Item.IsExpanded;
     }
 
-
     private async Task CopyNameToClipboard() {
         await this.JsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", this.Item.Name);
     }

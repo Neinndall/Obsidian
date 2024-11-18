@@ -6,7 +6,6 @@
 @using Obsidian.Utils;
 @using PhotinoNET;
 @using Microsoft.AspNetCore.Components;
-@inject IJSRuntime JSRuntime
 
 <style>
     .wad-tab-close-button {
@@ -40,8 +39,6 @@
         right: 20px; 
         opacity: 0.9; /* Opcional: ajusta la opacidad */
     }
-    
-
 </style>
 
 <MudPaper>
@@ -160,12 +157,11 @@
                     <WadFileTextPreview @ref="_textPreview" WadTree="WadTree" />
                     
                     <!-- Audio Preview -->
-                    @if (WadTree.CurrentPreviewType == WadFilePreviewType.Audio)
+                    @if (WadTree.CurrentPreviewType is WadFilePreviewType.Audio)
                     {
                         <WadAudioPreview @ref="_audioPreview" />
-                        
                     }
-
+                    
                     <MudOverlay DarkBackground Absolute Visible="_isLoadingPreview" ZIndex="9999">
                         <MudProgressCircular Indeterminate Color="Color.Primary" />
                     </MudOverlay>

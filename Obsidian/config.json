@@ -1,0 +1,21 @@
+{
+  "GameHashesLastUpdate": "2024-11-13T00:04:00",
+  "LcuHashesLastUpdate": "2024-11-13T00:04:00",
+  "BinFieldsHashesLastUpdate": "2024-11-13T00:04:00",
+  "BinTypesHashesLastUpdate": "2024-11-13T00:04:00",
+  "BinHashesLastUpdate": "2024-11-13T00:04:00",
+  "BinEntriesHashesLastUpdate": "2024-11-13T00:04:00",
+  "GameHashesFileSize": 132272041,
+  "LcuHashesFileSize": 12396413,
+  "BinFieldsFileSize": 241378,
+  "BinTypesFileSize": 117550,
+  "BinHashesFileSize": 2663800,
+  "BinEntriesFileSize": 21649004,
+  "DoNotRequireGameDirectory": false,
+  "GameDataDirectory": "C:\\Riot Games\\League of Legends (PBE)",
+  "DefaultExtractDirectory": null,
+  "SyncHashtables": false,
+  "IsRichPresenceEnabled": true,
+  "LoadSkinnedMeshAnimations": false,
+  "ShouldPreviewSelectedItems": true
+}
